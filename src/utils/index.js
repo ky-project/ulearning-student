@@ -119,3 +119,25 @@ export function filterObj(obj, arr) {
     return result
   }
 }
+
+// 获取视口宽高
+export function getViewportOffset() {
+  if (window.innerWidth) {
+    return {
+      w: window.innerWidth,
+      h: window.innerHeight
+    }
+  } else {
+    if (document.compatMode === 'BackCompat') {
+      return {
+        w: document.body.clienWidth,
+        h: document.body.clientHeight
+      }
+    } else {
+      return {
+        w: document.documentElement.clientWidth,
+        h: document.documrntElement.clientHeight
+      }
+    }
+  }
+}

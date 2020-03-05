@@ -45,7 +45,6 @@ const actions = {
       axiosGet(INFO_URL)
         .then(response => {
           commit('SET_USER_INFO', response.data)
-          console.log('userInfo', response.data)
           resolve()
         })
         .catch(error => (

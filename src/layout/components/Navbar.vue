@@ -1,10 +1,29 @@
 <template>
   <div class="navbar">
-    <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-
-    <breadcrumb class="breadcrumb-container" />
-
+    <hamburger
+      v-desktop
+      :is-active="sidebar.opened"
+      class="hamburger-container"
+      @toggleClick="toggleSideBar"
+    />
+    <breadcrumb v-desktop class="breadcrumb-container" />
+    <!-- 手机端适配开始 -->
+    <div v-if="$route.path === '/home'" v-mobile class="logo">
+      <img src="@/assets/images/logo.png" alt="">
+      <!-- <span>范在学习</span> -->
+    </div>
+    <div v-else v-mobile class="back" @click="() => {$router.back(-1)}">
+      <i class="el-icon-back" />
+      <span>返回</span>
+    </div>
+    <div v-mobile class="page-title">
+      {{ $route.meta ? $route.meta.title : '页面' }}
+    </div>
+    <!-- 手机端适配结束 -->
     <div class="right-menu">
+      <div class="gonggao">
+        <svg-icon icon-class="gonggao" class="icon" />
+      </div>
       <div class="avatar" @click.stop="uploadHeadImg">
         <img :src="userInfo.teaPhoto ? userInfo.teaPhoto : teaPhoto" alt="">
       </div>
@@ -51,8 +70,15 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'userInfo'
+      'userInfo',
+      'device'
     ])
+  },
+  watch: {
+    '$route'() {
+      // console.log(this.$route)
+      return this.$route
+    }
   },
   methods: {
     ...mapActions({
@@ -115,6 +141,16 @@ export default {
     &:focus {
       outline: none;
     }
+    .gonggao {
+      margin-right: 20px;
+      .icon {
+        font-size: 20px;
+        cursor: pointer;
+        &:hover {
+          color: #409EFF
+        }
+      }
+    }
     .hiddenInput {
       display: none;
     }
@@ -132,6 +168,55 @@ export default {
       margin-right: 20px;
       .el-dropdown-link {
         cursor: pointer
+      }
+    }
+  }
+
+}
+</style>
+<style lang="scss" scoped>
+// 响应式布局开始
+@media screen and(max-width: 992px){
+  .navbar {
+    position: relative;
+    .logo {
+      float: left;
+      line-height: 50px;
+      margin-left: 20px;
+      img {
+        width: 30px;
+        height: 30px;
+        color: #ccc;
+        vertical-align: middle;
+      }
+      span {
+        font-size: 14px;
+      }
+    }
+    .back {
+      float: left;
+      line-height: 50px;
+      margin-left: 20px;
+      color: #666;
+      i {
+        font-size: 20px;
+      }
+    }
+    .page-title {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+    }
+    .right-menu {
+      .avatar {
+        margin-top: 10px;
+        img {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+        }
       }
     }
   }

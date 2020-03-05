@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container personal">
     <div>
       <el-row :gutter="20">
         <el-col :span="6" :xs="24">
@@ -21,7 +21,12 @@
                 <el-input v-model="pwdForm.confirmPassword" type="password" placeholder="再输入一次新密码" />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" :loading="isloading" class="fr" @click="resetPwd('pwdForm')">提交</el-button>
+                <el-button
+                  type="primary"
+                  :loading="isloading"
+                  class="submit fr"
+                  @click="resetPwd('pwdForm')"
+                >提交</el-button>
               </el-form-item>
             </el-form>
           </el-card>
@@ -136,11 +141,21 @@ export default {
 
 </script>
 <style lang='scss' scoped>
-.app-container {
+.personal {
   ::v-deep .el-form-item__label {
     line-height: 20px;
     font-weight: normal;
     font-size: 14px;
+  }
+}
+</style>
+<style lang="scss" scoped>
+@media screen and (max-width: 992px){
+  .personal {
+    .submit {
+      width: 100%;
+      padding: 6px 0;
+    }
   }
 }
 </style>

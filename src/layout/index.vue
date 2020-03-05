@@ -1,28 +1,40 @@
 <template>
   <div :class="classObj" class="app-wrapper">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar class="sidebar-container" />
+    <sidebar v-desktop class="sidebar-container" />
     <div class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar />
       </div>
       <app-main />
+      <tabbar v-mobile :data="data" />
     </div>
   </div>
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
+import { Navbar, Sidebar, AppMain, Tabbar } from './components'
+import ResizeMixin from './mixin/ResizeHandler' // 监听页面视口变化，设置layout显示模式
 
 export default {
   name: 'Layout',
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    Tabbar
   },
   mixins: [ResizeMixin],
+  data: function() {
+    return {
+      data: [
+        { icon: 'xuanke', label: '选课', path: '/select-course/index' },
+        { icon: 'kaoshi', label: '测试', path: '/select-course/index2' },
+        { icon: 'shiyan', label: '实验', path: '/select-course/index3' },
+        { icon: 'ziliao', label: '资源', path: '/select-course/index4' }
+      ]
+    }
+  },
   computed: {
     sidebar() {
       return this.$store.state.app.sidebar
@@ -90,4 +102,9 @@ export default {
   .mobile .fixed-header {
     width: 100%;
   }
+
+  /* .tabbar {
+    padding-bottom: 50px;
+  } */
 </style>
+

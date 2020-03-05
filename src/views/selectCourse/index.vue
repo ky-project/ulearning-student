@@ -1,29 +1,37 @@
 <template>
-  <div class="app-container">
+  <div class="app-container select-course">
     <!-- 查询 -->
     <div class="filter-container">
-      <el-input
-        v-model="listQuery.teachingTaskAlias"
-        placeholder="教学任务别称"
-        style="width: 200px;"
-        class="filter-item"
-      />
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >
-        查询
-      </el-button>
-      <el-button
-        class="filter-item fr"
-        type="primary"
-        @click="handleChange"
-      >
-        {{ !state ? '已选' : '选课' }}
-      </el-button>
+      <div v-desktop>
+        <el-input
+          v-model="listQuery.teachingTaskAlias"
+          placeholder="教学任务别称"
+          style="width: 200px;"
+          class="filter-item"
+        />
+        <el-button
+          v-waves
+          class="filter-item"
+          type="primary"
+          icon="el-icon-search"
+          @click="handleFilter"
+        >
+          查询
+        </el-button>
+        <el-button
+          class="filter-item fr"
+          type="primary"
+          @click="handleChange"
+        >
+          {{ !state ? '已选' : '选课' }}
+        </el-button>
+      </div>
+      <MobileTop v-model="listQuery.teachingTaskAlias" v-mobile placeholder="请输入教学别称" @search="getList">
+        <el-button class="btn" type="primary" @click="handleChange">
+          <svg-icon icon-class="qiehuan" />
+          {{ !state ? '已选' : '选课' }}
+        </el-button>
+      </MobileTop>
     </div>
     <!-- 表格 -->
     <el-table
@@ -33,29 +41,36 @@
       border
       fit
       highlight-current-row
+      :height="tableHeight"
       style="width: 100%;"
     >
-      <el-table-column label="教学任务别称" align="center" width="120">
+      <el-table-column label="教学任务别称" align="center" width="120" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.teachingTaskAlias }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="开课学期" min-width="120" align="center">
+      <el-table-column label="开课学期" min-width="120" align="center" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.term }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="任课老师" min-width="50" align="center">
+      <el-table-column label="任课老师" min-width="100" align="center" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.teacher.teaName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="学分" min-width="120" align="center">
+      <el-table-column label="学分" min-width="100" align="center" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.course.courseCredit }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" min-width="70" class-name="small-padding fixed-width">
+      <el-table-column
+        label="操作"
+        align="center"
+        min-width="70"
+        class-name="small-padding fixed-width"
+        show-overflow-tooltip
+      >
         <template slot-scope="{row}">
           <el-button
             :style="{color: '#409EFF'}"
@@ -77,21 +92,26 @@
       </el-table-column>
     </el-table>
     <!-- 分页器 -->
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="listQuery.currentPage"
-      :limit.sync="listQuery.pageSize"
-      class="fr"
-      @pagination="setPagination"
-    />
+    <div v-desktop>
+      <pagination
+        v-show="total>0"
+        :total="total"
+        :page.sync="listQuery.currentPage"
+        :limit.sync="listQuery.pageSize"
+        class="fr"
+        @pagination="setPagination"
+      />
+    </div>
+
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
+import MobileTop from '@/components/MobileTop'
 import { axiosGet, axiosPost } from '@/utils/axios'
+import { getViewportOffset } from '@/utils/index'
 import {
   GET_SELECTED_COURSE_LIST,
   GET_UNSELECTED_COURSE_LIST,
@@ -101,19 +121,32 @@ import {
 
 export default {
   name: 'SelectCourse',
-  components: { Pagination },
+  components: { Pagination, MobileTop },
   directives: { waves },
   data() {
     return {
-      /* total: 0,
-      listLoading: true,*/
+      total: 0,
+      listLoading: true,
       tableKey: 0,
       list: null, // 表格数据
       state: 0, // 0-未选, 1-已选
       listQuery: {
         currentPage: 1,
-        pageSize: 5,
+        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 5,
         teachingTaskAlias: ''
+      }
+    }
+  },
+  computed: {
+    isMobile() {
+      return this.$store.getters.device === 'mobile'
+    },
+    tableHeight() {
+      const height = getViewportOffset().h
+      if (this.isMobile) {
+        return height - 182
+      } else {
+        return ''
       }
     }
   },
@@ -261,6 +294,11 @@ export default {
     display: inline-block;
     vertical-align: middle;
     margin-bottom: 10px;
+  }
+  .btn {
+    padding: 0 5px;
+    margin-left: 5px;
+    line-height: 30px;
   }
 }
 </style>

@@ -35,6 +35,25 @@ Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
+// 禁止页面拖拽
+// document.body.addEventListener('touchmove', function(e) { e.preventDefault() })
+// 自定义指令开始
+Vue.directive('mobile', {
+  bind: el => {
+    if (store.getters.device === 'desktop') {
+      // el.style.display.removeChild(el) // 移除
+      el.style.display = 'none'
+    }
+  }
+})
+Vue.directive('desktop', {
+  bind: el => {
+    if (store.getters.device === 'mobile') {
+      // el.parentNode.removeChild(el) // 移除
+      el.style.display = 'none'
+    }
+  }
+})
 new Vue({
   el: '#app',
   router,

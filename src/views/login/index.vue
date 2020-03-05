@@ -3,7 +3,8 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">基于泛在学习的学生管理系统</h3>
+        <svg-icon icon-class="logo" class="logo" />
+        <!-- <span class="title">范在学习--学生端</span> -->
       </div>
 
       <el-form-item prop="username">
@@ -56,7 +57,7 @@
         <img :src="code.img" alt="" @click="getcode">
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登 录</el-button>
 
     </el-form>
   </div>
@@ -197,7 +198,7 @@ $light_gray:#eee;
     position: relative;
     width: 520px;
     max-width: 100%;
-    padding: 120px 35px 0;
+    padding: 50px 35px 0;
     margin: 0 auto;
     overflow: hidden;
   }
@@ -224,7 +225,16 @@ $light_gray:#eee;
 
   .title-container {
     position: relative;
-
+    text-align: center;
+    margin-bottom: 40px;
+    .logo {
+      width: 100px;
+      height: 100px;
+      padding: 10px;
+      margin-right: 10px;
+      background-color: #fff;
+      border-radius: 50%;
+    }
     .title {
       font-size: 26px;
       color: $light_gray;

@@ -5,6 +5,7 @@ const WIDTH = 992 // refer to Bootstrap's responsive design
 
 export default {
   watch: {
+    // 监听路由变化，根据当前设备调整侧边栏
     $route(route) {
       if (this.device === 'mobile' && this.sidebar.opened) {
         store.dispatch('app/closeSideBar', { withoutAnimation: false })
