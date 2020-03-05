@@ -57,6 +57,38 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/file-manage',
+    component: Layout,
+    meta: { title: '文件管理', icon: 'wenjian' },
+    children: [
+      {
+        path: 'document-manage',
+        name: 'DocumentManage',
+        component: () => import('@/views/fileManage/documentManage'),
+        meta: { title: '文件资料管理', icon: 'ziliao' }
+      },
+      {
+        path: 'resource-manage',
+        name: 'ResourceManage',
+        component: () => import('@/views/fileManage/resourceManage'),
+        meta: { title: '教学资源管理', icon: 'ziyuan' }
+      }
+    ]
+  },
+  /* {
+    path: '/experiment',
+    component: Layout,
+    redirect: '/experiment/index',
+    children: [
+      {
+        path: 'index',
+        name: 'Experiment',
+        component: () => import('@/views/experiment/index'),
+        meta: { title: '实验管理', icon: 'shiyan' }
+      }
+    ]
+  }, */
+  {
     path: '/test',
     name: 'test',
     component: () => import('@/views/test/index'),

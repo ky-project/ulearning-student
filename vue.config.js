@@ -33,7 +33,7 @@ module.exports = {
   productionSourceMap: false,
   transpileDependencies: ['vue-echarts', 'resize-detector', 'vuex-persist'],
   devServer: {
-    host: '192.168.1.3',
+    // host: '192.168.1.3',
     port: port,
     open: true,
     overlay: {
