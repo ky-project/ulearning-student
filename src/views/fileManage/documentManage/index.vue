@@ -376,6 +376,9 @@ export default {
 </style>
 <style lang='scss' scoped>
 .document-manage {
+  /* .sub-nav {
+    background-color: #eee;
+  } */
   .file-zone-mobile {
     height: calc(100vh - 145px);
     position: relative;
