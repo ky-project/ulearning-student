@@ -69,9 +69,9 @@
       </el-table-column>
     </el-table>
     <!-- 文件区手机 -->
-    <div class="file-zone-mobile">
+    <div v-loading="loading" class="file-zone-mobile">
       <el-scrollbar style="height:100%">
-        <ul class="file-zone-mobile-list">
+        <ul v-if="documentList.length" class="file-zone-mobile-list">
           <li
             v-for="item in documentList"
             :key="item.id"
@@ -89,6 +89,7 @@
             </div>
           </li>
         </ul>
+        <div v-else class="file-zone-mobile-empty">暂无资源</div>
       </el-scrollbar>
     </div>
   </div>
@@ -120,7 +121,7 @@ export default {
   },
   computed: {
     isRoot() {
-      return this.documentList.length === 1
+      return this.navList.length <= 1
     },
     isMobile() {
       return this.$store.device === 'mobile'
@@ -377,6 +378,15 @@ export default {
 .document-manage {
   .file-zone-mobile {
     height: calc(100vh - 145px);
+    position: relative;
+    &-empty {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ccc;
+      font-size: 16px;
+    }
     &-list {
       &-item {
         position: relative;

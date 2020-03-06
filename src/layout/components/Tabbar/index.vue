@@ -1,18 +1,35 @@
 <template>
   <div class="tabbar flex">
-    <router-link
-      v-for="(item,index) in data"
-      :key="item.title"
-      :to="item.path"
-      class="tabbar-item grow"
-      @click="() => { selectNum = index }"
-    >
-      <svg-icon
-        :icon-class="item.icon"
-        class="tabbar-item-icon"
-      />
-      <div class="tabbar-item-label">{{ item.label }}</div>
-    </router-link>
+    <template v-for="(item,index) in data">
+      <router-link
+        v-if="!item.children"
+        :key="item.label"
+        :to="item.path"
+        class="tabbar-item grow"
+        @click="() => { selectNum = index }"
+      >
+        <svg-icon
+          :icon-class="item.icon"
+          class="tabbar-item-icon"
+        />
+        <div class="tabbar-item-label">{{ item.label }}</div>
+      </router-link>
+      <el-dropdown v-else :key="item.label" class="tabbar-item grow">
+        <span class="el-dropdown-link">
+          <svg-icon
+            :icon-class="item.icon"
+            class="tabbar-item-icon"
+          />
+          <div class="tabbar-item-label">{{ item.label }}</div>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item v-for="option in item.children" :key="option.label">
+            <router-link :to="option.path">{{ option.label }}</router-link>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </template>
+
   </div>
 </template>
 
@@ -24,7 +41,7 @@ export default {
   components: {},
   props: {
     data: {
-      type: Array,
+      type: Array, // [{ path: xxx, label: xxx, icon: xxx, children: [icon: xxx, label: xxx, path: xxx]}]
       required: true
     }
   },

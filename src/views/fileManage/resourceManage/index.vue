@@ -1,70 +1,10 @@
 <template>
   <div class="document-manage" @contextmenu.prevent="()=>{}">
     <!-- 操作栏 -->
-    <div class="operator-bar">
-      <ul class="operator-bar__list clear-fix">
-        <li :class="['operator-bar__list-item', 'fl', {disabled: zone}]">
-          <svg-icon icon-class="shangchuan" />
-          <upload
-            :url="uploadUrl"
-            file-key="file"
-            :data="uploadData"
-            class-name="upload"
-            :on-uploading="onUploading"
-            :on-success="onSuccess"
-            :on-error="onError"
-            :disabled="!!zone"
-          >
-            <span>上传</span>
-          </upload>
-        </li>
-        <li :class="['operator-bar__list-item', 'fl']">
-          <svg-icon icon-class="xiazai" />
-          <span>下载</span>
-        </li>
-        <li
-          :class="['operator-bar__list-item', 'fl', {disabled: zone}]"
-          @click="batchShare"
-        >
-          <svg-icon icon-class="gongxiang" />
-          <span>共享</span>
-        </li>
-        <li
-          :class="['operator-bar__list-item', 'fl', {disabled: zone}]"
-          @click="batchDelete"
-        >
-          <svg-icon icon-class="shanchu" />
-          <span>删除</span>
-        </li>
-        <li :class="['operator-bar__list-item', 'fl', {disabled: zone}]" @click="addFolder">
-          <svg-icon icon-class="xinjian" />
-          <span>新建文件夹</span>
-        </li>
-      </ul>
-      <el-button class="zone fr" type="text" @click="changeZone">{{ zone ? '个人区' : '共享区' }}</el-button>
-    </div>
-    <!-- 二级导航 -->
     <div class="sub-nav">
-      <file-nav :data="navList" @update="handleUpdate" />
+      <file-nav :data="navList" :is-root="isRoot" @update="handleUpdate" @back="handleBack" />
       <div class="filter fr">
         <el-select
-          v-if="zone"
-          v-model="teachingTaskId"
-          placeholder="课程"
-          style="width: 200px;"
-          class="filter-item"
-          size="mini"
-          :style="{marginTop: '5px'}"
-        >
-          <el-option
-            v-for="item in teachingTask"
-            :key="item.id"
-            :label="item.teachingTaskAlias"
-            :value="item.id"
-          />
-        </el-select>
-        <el-select
-          v-else
           v-model="teachingTaskId"
           placeholder="教学任务"
           style="width: 200px;"
@@ -74,161 +14,125 @@
         >
           <el-option
             v-for="item in teachingTask"
-            :key="item.id"
-            :label="item.teachingTaskAlias"
-            :value="item.id"
+            :key="item.key"
+            :label="item.label"
+            :value="item.key"
           />
         </el-select>
       </div>
     </div>
-    <!-- 文件区 -->
+    <!-- 文件区-pc -->
     <el-table
-      ref="multipleTable"
+      ref="table"
+      v-desktop
       v-loading="loading"
-      :data="currentFileList"
+      :data="documentList"
       tooltip-effect="dark"
       style="width: 100%"
       size="mini"
       class="file-zone"
       :height="tableHeight"
-      @row-contextmenu="rightClick"
-      @row-dblclick="handleDbclick"
-      @selection-change="handleSelectionChange"
+      @row-dblclick="enterFile"
     >
       <el-table-column
-        type="selection"
-        width="55"
-      />
-      <el-table-column
         label="文件名"
-        min-width="300px"
+        min-width="200px"
       >
         <template slot-scope="scope">
           <svg-icon :icon-class="setFileIcon(scope.row.fileExt)" class-name="icon" />
-          <input
-            v-if="scope.row.nameModify"
-            v-model="fileName"
-            v-focus
-            @blur="blurHandler(scope.row)"
-          >
-          <span v-else>{{ setFileName(scope.row) }}</span>
-          <div class="operator fr">
-            <svg-icon
-              v-if="!zone"
-              :icon-class="scope.row.resourceShared ? 'quxiaogongxiang' : 'gongxiang'"
-              class-name="item-icon"
-              @click="share(scope.row)"
-            />
-            <svg-icon
-              v-if="scope.row.fileType === 1"
-              icon-class="xiazai"
-              class-name="item-icon"
-              @click="downloadFile(setFileName(scope.row), scope.row.id)"
-            />
-            <svg-icon
-              v-if="!zone"
-              icon-class="shanchu"
-              class-name="item-icon"
-              @click="deleteFolder(scope.row.id)"
-            />
-          </div>
+          <span>{{ setFileName(scope.row) }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        label="是否共享"
+        label="更新时间"
         min-width="150px"
       >
         <template slot-scope="scope">
-          {{ isShare(scope.row) }}
+          <span>{{ scope.row.updateTime }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="大小"
-        min-width="100px"
+        min-width="120px"
       >
         <template slot-scope="scope">
           <span>{{ setFileSize(scope.row.fileSize) }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        label="更新时间"
-        min-width="100px"
+        label="操作"
+        min-width="50px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.updateTime }}</span>
+          <svg-icon icon-class="xiazai" :class="{disabled: scope.row.fileType === 2}" @click="download(scope.row)" />
         </template>
       </el-table-column>
     </el-table>
-    <!-- 右键菜单 -->
-    <right-menu
-      :visible.sync="visible"
-      :data="menuList"
-      el="tbody"
-      @click="rightMenuItemClick"
-    />
+    <!-- 文件区手机 -->
+    <div v-loading="loading" class="file-zone-mobile">
+      <el-scrollbar style="height:100%">
+        <ul v-if="documentList.length" class="file-zone-mobile-list">
+          <li
+            v-for="item in documentList"
+            :key="item.id"
+            class="file-zone-mobile-list-item"
+            @click="() => enterFile(item)"
+          >
+            <svg-icon :icon-class="setFileIcon(item.fileExt)" class="file-icon" />
+            <h4 class="file-name">{{ setFileName(item) }}</h4>
+            <div class="file-info">
+              <span class="file-date">{{ formatTime(item.updateTime) }}</span>
+              <span class="file-size">{{ setFileSize(item.fileSize) }}</span>
+            </div>
+            <div v-if="item.fileType !== 2" class="file-download" @click="download(item)">
+              <svg-icon icon-class="xiazai" />
+            </div>
+          </li>
+        </ul>
+        <div v-else class="file-zone-mobile-empty">暂无资源</div>
+      </el-scrollbar>
+    </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { getViewportOffset, setFileIcon, setFileSize } from '@/utils/index'
 import {
-  GET_ROOT_FOLDER_URL2, // 查询教学资源根节点
-  GET_RESOURCE_LIST_URL2, // 查询教学资源列表
-  ADD_FOLDER_URL2, // 添加文件夹
-  DELETE_RESOURCE_URL2, // 删除教学资源
-  UPDATE_RESOURCE_URL2, // 更新教学资源
-  UPLOAD_RESOURCE_URL2, // 上传文件
-  DOWNLOAD_RESOURCE_URL2, // 下载文件
-  SHARE_RESOURCE_URL2, // 分享教学资源
-  BATCHSHARE_RESOURCE_URL2, // 批量分享教学资源
-  BATCHDELETE_RESOURCE_URL2, // 批量删除教学资源
-  GET_SHAREROOT_FOLDER_URL2, // 查询教学资源分享区根节点
-  GET_RESOURCE_SHARELIST_URL2 // 查询教学资源分享区列表
+  GET_SELECTED_COURSE_ARRAY_URL, // 查询所有已选教学任务数组
+  GET_RESOURCE_ROOT_URL, // 查询文件资料根节点
+  GET_RESOURCE_LIST_URL, // 查询文件资料列表
+  DOWNLOAD_RESOURCE_URL // 下载文件
 } from '@/api/url'
-import { isFile } from '@/utils/validate'
 import FileNav from '@/views/fileManage/components/FileNav'
-import RightMenu from '@/components/RightMenu/index'
-import Upload from '@/components/Upload/index'
-import { axiosGet, axiosPost } from '@/utils/axios'
-import { setFileIcon, setFileSize } from '@/utils/index'
+import { axiosGet } from '@/utils/axios'
 export default {
-  // 教学资源管理
+  // 文件资料管理
   name: 'ResourceManage',
-  components: { FileNav, RightMenu, Upload },
+  components: { FileNav },
   data() {
     return {
-      zone: 0, // 0-personal , 1-share
+      teachingTask: [],
       teachingTaskId: '', // 教学任务id
-      fileParentId: '', // 父文件id
-      currentFileList: [], // 当前文件列表
-      navList: [], // 导航列表
       loading: false,
-      // 右键菜单相关
-      menuList: [
-        { icon: 'rename', content: '重命名' }
-      ],
-      visible: false,
-      currentRowData: {},
-      // 重命名相关
-      fileName: '',
-      multipleSelection: []
+      fileParentId: '', // 父文件id
+      navList: [], // 导航列表
+      documentList: [] // 文件列表
     }
   },
   computed: {
-    ...mapGetters(['teachingTask']),
+    isRoot() {
+      return this.navList.length <= 1
+    },
+    isMobile() {
+      return this.$store.device === 'mobile'
+    },
     tableHeight() {
-      return window.innerHeight - 126
-    },
-    uploadData() {
-      return {
-        fileParentId: this.fileParentId,
-        teachingTaskId: this.teachingTaskId,
-        resourceShared: false,
-        resourceType: 1 // 暂时不用
+      const height = getViewportOffset().h
+      if (this.isisMobile) {
+        return height - 145
+      } else {
+        return height - 90
       }
-    },
-    uploadUrl() {
-      return UPLOAD_RESOURCE_URL2
     }
   },
   watch: {
@@ -239,37 +143,32 @@ export default {
     }
   },
   created() {
-    if (this.teachingTask.length) {
-      this.teachingTaskId = this.teachingTask[0].id
-      this.initialFileList()
-    }
+    this.getTaskArray()
+      .then(response => {
+        this.teachingTask = response.data
+        if (this.teachingTask.length) {
+          this.teachingTaskId = this.teachingTask[0].key
+          this.initialFileList()
+        }
+      })
   },
-  methods: {
-    // 查询分享区根节点id
-    getShareZoneRoot(data) {
-      return new Promise((resolve, reject) => {
 
-      })
+  beforeMount() {},
+
+  mounted() {},
+
+  methods: {
+    // 格式化时间
+    formatTime(time) {
+      const tempArr = time.split(' ')
+      return tempArr[0].slice(2)
     },
-    // 个人/分享区切换
-    changeZone() {
-      this.zone = this.zone ? 0 : 1
-      this.initialFileList()
-    },
-    // 格式化分享列
-    isShare(item) {
-      return item.resourceShared ? '是' : '否'
-    },
-    // 行选择事件
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-    },
-    // 批量删除文件
-    batchDeleteResource(data) {
+    // 获取教学任务数组
+    getTaskArray() {
       return new Promise((resolve, reject) => {
-        axiosGet(BATCHDELETE_RESOURCE_URL2, { params: data })
+        axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
           .then(response => {
-            resolve()
+            resolve(response)
           })
           .catch(error => {
             this.$message.error(error.message || '出错')
@@ -277,65 +176,56 @@ export default {
           })
       })
     },
-    // 批量分享文件
-    batchShareResource(data) {
+    // 查询文件资料根节点
+    getDocumentRoot(data) {
       return new Promise((resolve, reject) => {
-        axiosPost(BATCHSHARE_RESOURCE_URL2, data)
+        this.loading = true
+        axiosGet(GET_RESOURCE_ROOT_URL, { params: data })
           .then(response => {
-            resolve()
+            this.loading = false
+            resolve(response)
           })
           .catch(error => {
             this.$message.error(error.message || '出错')
+            this.loading = false
             reject(error)
           })
       })
     },
-    // 批量删除事件
-    batchDelete() {
-      const tempArr = this.multipleSelection.map(item => item.id)
-      const ids = tempArr.join(',')
-      this.batchDeleteResource({ ids })
-        .then(() => {
-          this.getFileList()
-        })
-    },
-    // 批量分享事件
-    batchShare() {
-      const tempArr = this.multipleSelection.map(item => item.id)
-      const ids = tempArr.join(',')
-      const data = {
-        ids,
-        resourceShared: true
-      }
-      this.batchShareResource(data)
-        .then(() => {
-          this.getFileList()
-        })
-    },
-    // 分享/取消事件
-    share(item) {
-      // console.log(item.resourceShared)
-      const data = {
-        resourceShared: !item.resourceShared,
-        id: item.id
-      }
-      this.shareResource(data)
-        .then(() => {
-          this.getFileList()
-        })
-    },
-    // 分享文件
-    shareResource(data) {
+    // 查询文件资料列表
+    getDocumentList(data) {
       return new Promise((resolve, reject) => {
-        axiosPost(SHARE_RESOURCE_URL2, data)
+        const data = {
+          fileParentId: this.fileParentId,
+          teachingTaskId: this.teachingTaskId
+        }
+        this.loading = true
+        axiosGet(GET_RESOURCE_LIST_URL, { params: data })
           .then(response => {
-            resolve()
+            this.documentList = response.data
+            this.loading = false
+            resolve(response)
           })
           .catch(error => {
             this.$message.error(error.message || '出错')
+            this.loading = false
             reject(error)
           })
       })
+    },
+    // 初始化文件列表
+    initialFileList() {
+      // 获取根文件
+      this.getDocumentRoot({ teachingTaskId: this.teachingTaskId })
+        .then((response) => {
+          const { fileId, fileName } = response.data
+          this.fileParentId = fileId
+          // 添加导航
+          this.navList = []
+          this.navList.push({ fileId, fileName })
+          // 获取文件列表
+          this.getDocumentList()
+        })
     },
     // 设置文件图标
     setFileIcon(ext) {
@@ -345,37 +235,23 @@ export default {
     setFileSize(size) {
       return setFileSize(size)
     },
+    // 下载
+    download(row) {
+      const { fileName, id, fileType, fileExt } = row
+      if (fileType !== 2) {
+        this.downloadFile(fileName + '.' + fileExt, id)
+      }
+    },
     // 下载文件
     downloadFile(fileName, id) {
       var a = document.createElement('a')
       a.download = fileName
       a.style.display = 'none'
-      const fileurl = process.env.VUE_APP_BASE_API + DOWNLOAD_RESOURCE_URL2 + '?id=' + id
+      const fileurl = process.env.VUE_APP_BASE_API + DOWNLOAD_RESOURCE_URL + '?id=' + id
       a.href = fileurl
       document.body.appendChild(a)
       a.click() // 触发点击
       document.body.removeChild(a) // 然后移除
-    },
-    // 初始化文件列表
-    initialFileList() {
-      // 获取根文件
-      this.getRoot()
-        .then((response) => {
-          let fileId, fileName
-          if (!this.zone) {
-            fileId = response.data.fileId
-            fileName = response.data.fileName
-          } else {
-            fileId = response.data
-            fileName = '根目录'
-          }
-          this.fileParentId = fileId
-          // 添加导航
-          this.navList = []
-          this.navList.push({ fileId, fileName })
-          // 获取文件列表
-          this.getFileList()
-        })
     },
     // 设置文件名
     setFileName(item) {
@@ -385,212 +261,36 @@ export default {
       }
       return fileName
     },
-    // 重命名
-    blurHandler(item) {
-      // 判空
-      this.fileName = this.fileName.trim()
-      if (this.fileName === '') {
-        item.nameModify = false
-        return false
+    // 导航回退事件
+    handleBack() {
+      if (this.navList.length > 1) {
+        this.navList.pop()
+        this.fileParentId = this.navList[this.navList.length - 1].fileId
+        this.getDocumentList()
       }
-      // 判断格式
-      if (!isFile(this.fileName)) {
-        this.$message.error('文件名不能包含以下任何字符: \ / : * ? " < > |')
-        item.nameModify = false
-        this.fileName = ''
-        return false
-      }
-      // 发送请求
-      const data = {
-        fileName: this.fileName,
-        id: item.id
-      }
-      this.updateFile(data)
-        .then(() => {
-          item.fileName = this.fileName
-          item.nameModify = false
-          this.fileName = ''
-        })
-        .catch(() => {
-          item.nameModify = false
-          this.fileName = ''
-        })
-    },
-    // 修改文件
-    updateFile(data) {
-      return new Promise((resolve, reject) => {
-        axiosPost(UPDATE_RESOURCE_URL2, data)
-          .then(response => {
-            console.log(response)
-            resolve(response.data)
-          })
-          .catch(error => {
-            this.$message.error(error.message || '出错')
-            reject(error)
-          })
-      })
-    },
-    // 右键菜单项点击事件
-    rightMenuItemClick(index) {
-      switch (index) {
-        case 0: this.currentRowData.nameModify = true // 切换文件名状态
-      }
-    },
-    // 右键事件
-    rightClick(row, column, event) {
-      console.log('当前行', row)
-      this.currentRowData = row
     },
     // 导航点击事件
     handleUpdate(navList) {
       this.navList = navList
       this.fileParentId = this.navList[this.navList.length - 1].fileId
-      this.getFileList()
+      this.getDocumentList()
     },
     // 监听行双击事件
-    handleDbclick(row, column, event) {
+    enterFile(row) {
       const { fileType, fileId, fileName } = row
       // 1. 判断是否是文件夹
       if (fileType === 2) {
         // 2. 是，进入文件夹
         this.fileParentId = fileId
-        this.getFileList()
+        this.getDocumentList()
           .then(() => {
             // 3. 添加导航
             this.navList.push({ fileId, fileName })
           })
       }
-    },
-    // 获取根节点
-    getRoot() {
-      return new Promise((resolve, reject) => {
-        if (!this.zone) {
-          this.loading = true
-          axiosGet(GET_ROOT_FOLDER_URL2, { params: { teachingTaskId: this.teachingTaskId }})
-            .then(response => {
-              this.loading = false
-              resolve(response)
-            })
-            .catch(error => {
-              this.$message.error(error.message || '出错')
-              this.loading = false
-              reject(error)
-            })
-        } else {
-          this.loading = true
-          axiosGet(GET_SHAREROOT_FOLDER_URL2, { params: { teachingTaskId: this.teachingTaskId }})
-            .then(response => {
-              this.loading = false
-              resolve(response)
-            })
-            .catch(error => {
-              this.$message.error(error.message || '出错')
-              this.loading = false
-              reject(error)
-            })
-        }
-      })
-    },
-    // 格式化教学资源列表
-    formatFileList(fileList) {
-      return fileList.map(item => { item.nameModify = false; return item }) // 添加修改名称状态属性
-    },
-    // 查询教学资源列表
-    getFileList() {
-      return new Promise((resolve, reject) => {
-        const data = {
-          fileParentId: this.fileParentId,
-          teachingTaskId: this.teachingTaskId
-        }
-        if (!this.zone) {
-          this.loading = true
-          axiosGet(GET_RESOURCE_LIST_URL2, { params: data })
-            .then(response => {
-              this.currentFileList = this.formatFileList(response.data)
-              this.loading = false
-              resolve()
-            })
-            .catch(error => {
-              this.$message.error(error.message || '出错')
-              this.loading = false
-              reject(error)
-            })
-        } else {
-          // GET_RESOURCE_SHARELIST_URL2
-          this.loading = true
-          axiosGet(GET_RESOURCE_SHARELIST_URL2, { params: data })
-            .then(response => {
-              this.currentFileList = this.formatFileList(response.data)
-              this.loading = false
-              resolve()
-            })
-            .catch(error => {
-              this.$message.error(error.message || '出错')
-              this.loading = false
-              reject(error)
-            })
-        }
-      })
-    },
-    // 获取新的文件名
-    getNewFileName() {
-      let findNewName = false
-      const baseName = '新建文件夹'
-      let count = 1
-      let currentName = baseName
-      while (!findNewName) {
-        const result = this.currentFileList.findIndex(item => item.fileName === currentName)
-        if (result === -1) {
-          findNewName = true
-        } else {
-          currentName = baseName + count
-          count++
-        }
-      }
-      return currentName
-    },
-    // 新建文件夹
-    addFolder() {
-      if (this.zone) { return }
-      const data = {
-        fileParentId: this.fileParentId,
-        fileName: this.getNewFileName(),
-        teachingTaskId: this.teachingTaskId
-      }
-      axiosPost(ADD_FOLDER_URL2, data)
-        .then(response => {
-          // 获取教学资源列表
-          this.getFileList()
-        })
-        .catch(error => {
-          this.$message.error(error.message || '出错')
-        })
-    },
-    // 删除文件/文件夹
-    deleteFolder(fileId) {
-      axiosGet(DELETE_RESOURCE_URL2, { params: { id: fileId }})
-        .then(response => {
-          this.getFileList()
-        })
-        .catch(error => {
-          this.$message(error.message || '出错')
-        })
-    },
-    // 上传中
-    onUploading() {
-      this.loading = true
-    },
-    // 上传成功
-    onSuccess() {
-      this.getFileList()
-      this.loading = false
-    },
-    // 上传失败
-    onError(msg) {
-      this.$message.error(msg)
-      this.loading = false
     }
   }
+
 }
 
 </script>
@@ -645,6 +345,9 @@ export default {
     }
   }
   .file-zone {
+    .disabled {
+      color: #ccc;
+    }
     .icon {
       font-size: 18px;
       margin-right: 5px;
@@ -662,8 +365,62 @@ export default {
     }
     &::v-deep .el-table__row {
       &:hover {
+        cursor: pointer;
         .operator {
           display: inline-block;
+        }
+      }
+    }
+  }
+}
+</style>
+<style lang='scss' scoped>
+.document-manage {
+  .file-zone-mobile {
+    height: calc(100vh - 145px);
+    position: relative;
+    &-empty {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ccc;
+      font-size: 16px;
+    }
+    &-list {
+      &-item {
+        position: relative;
+        padding-left: 40px;
+        padding-right: 40px;
+        height: 40px;
+        border-bottom: 1px solid #ccc;
+        &:active {
+          background: #ccc;
+        }
+        .file-icon {
+          position: absolute;
+          top: 50%;
+          left: 5px;
+          transform: translateY(-50%);
+          font-size: 30px;
+        }
+        .file-name {
+          // width: calc(100vw - 100px);
+          padding-top: 5px;
+          font-size: 14px;
+          // text-overflow: ellipsis;
+          // white-space:nowrap;
+          // line-height: 23px;
+        }
+        .file-info {
+          color: #666;
+          font-size: 12px;
+        }
+        .file-download {
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
         }
       }
     }

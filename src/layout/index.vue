@@ -31,7 +31,10 @@ export default {
         { icon: 'xuanke', label: '选课', path: '/select-course/index' },
         { icon: 'kaoshi', label: '测试', path: '/select-course/index2' },
         { icon: 'shiyan', label: '实验', path: '/select-course/index3' },
-        { icon: 'ziliao', label: '资源', path: '/select-course/index4' }
+        { icon: 'ziliao', label: '资源', path: '/select-course/index4', children: [
+          { label: '教学资源', path: '/file-manage/resource-manage' },
+          { label: '文件资料', path: '/file-manage/document-manage' }
+        ] }
       ]
     }
   },
