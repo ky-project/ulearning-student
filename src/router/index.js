@@ -75,19 +75,35 @@ export const constantRoutes = [
       }
     ]
   },
-  /* {
+  {
     path: '/experiment',
     component: Layout,
-    redirect: '/experiment/index',
+    redirect: '/experiment/experiment-list',
+    meta: { title: '实验管理', icon: 'shiyan' },
     children: [
       {
-        path: 'index',
-        name: 'Experiment',
-        component: () => import('@/views/experiment/index'),
-        meta: { title: '实验管理', icon: 'shiyan' }
+        path: 'experiment-list',
+        name: 'ExperimentList',
+        hidden: true,
+        component: () => import('@/views/experiment/experimentList'),
+        meta: { title: '实验管理列表' }
+      },
+      {
+        path: 'experiment-content',
+        name: 'ExperimentContent',
+        hidden: true,
+        component: () => import('@/views/experiment/experimentContent'),
+        meta: { title: '实验内容' }
+      },
+      {
+        path: 'experiment-result',
+        name: 'ExperimentResult',
+        hidden: true,
+        component: () => import('@/views/experiment/experimentResult'),
+        meta: { title: '实验结果' }
       }
     ]
-  }, */
+  },
   {
     path: '/test',
     name: 'test',

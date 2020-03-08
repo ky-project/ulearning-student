@@ -20,3 +20,10 @@ export const DOWNLOAD_DOCUMENT_URL = '/student/courseDocumentation/download' // 
 export const GET_RESOURCE_ROOT_URL = '/student/courseResource/getRootFolder' // 查询教学资源根节点
 export const GET_RESOURCE_LIST_URL = '/student/courseResource/list' // 查询教学资源列表
 export const DOWNLOAD_RESOURCE_URL = '/student/courseResource/download' // 下载教学资源
+// 试验管理
+export const GET_EXPERIMENT_PAGE_URL = '/student/teachingTaskExperiment/pageExperimentList' // 分页查询实验
+export const DOWNLOAD_EXPERIMENT_ATTACHMENT_URL = '/student/teachingTaskExperiment/downloadAttachment' // 下载附件
+// 实验结果管理
+export const SUBMIT_EXPERIMENT_RESULT = '/student/experimentResult/submitExperimentResult' // 提交实验结果
+export const GET_EXPERIMENT_RESULT = '/student/experimentResult/getById' // 根据id查询实验结果
+

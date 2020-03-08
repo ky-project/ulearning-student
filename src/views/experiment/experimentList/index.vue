@@ -3,12 +3,33 @@
     <!-- 查询 -->
     <div class="filter-container">
       <div v-desktop>
-        <el-input
-          v-model="listQuery.teachingTaskAlias"
-          placeholder="教学任务别称"
+        <el-select
+          v-model="listQuery.teachingTaskId"
+          placeholder="教学任务"
           style="width: 200px;"
           class="filter-item"
-        />
+        >
+          <el-option
+            v-for="item in teachingTask"
+            :key="item.key"
+            :label="item.label"
+            :value="item.key"
+          />
+        </el-select>
+        <el-select
+          v-model="listQuery.experimentState"
+          placeholder="状态"
+          style="width: 200px;"
+          class="filter-item"
+        >
+          <el-option
+            v-for="item in stateMap"
+            :key="item.key"
+            :label="item.label"
+            :value="item.key"
+            style="width: 200px;"
+          />
+        </el-select>
         <el-button
           v-waves
           class="filter-item"
@@ -18,81 +39,58 @@
         >
           查询
         </el-button>
-        <el-button
-          class="filter-item fr"
-          type="primary"
-          @click="handleChange"
-        >
-          {{ !state ? '已选' : '选课' }}
-        </el-button>
       </div>
-      <MobileTop v-model="listQuery.teachingTaskAlias" v-mobile placeholder="请输入教学别称" @search="getList">
-        <el-button class="btn" type="primary" @click="handleChange">
-          <svg-icon icon-class="qiehuan" />
-          {{ !state ? '已选' : '选课' }}
-        </el-button>
-      </MobileTop>
     </div>
     <!-- 表格 -->
-    <!-- <el-table
+    <el-table
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
       border
       fit
       highlight-current-row
-      :height="tableHeight"
       style="width: 100%;"
     >
-      <el-table-column label="教学任务别称" align="center" width="120" show-overflow-tooltip>
+      <el-table-column label="序号" align="center" width="80" show-overflow-tooltip>
+        <template slot-scope="{row}">
+          <span>{{ '实验' + row.experimentOrder }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="标题" min-width="100" align="center" show-overflow-tooltip>
+        <template slot-scope="{row}">
+          <span>{{ row.experimentTitle }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="教学任务别称" min-width="120" align="center" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.teachingTaskAlias }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="开课学期" min-width="120" align="center" show-overflow-tooltip>
+      <el-table-column label="状态" min-width="80" align="center" show-overflow-tooltip>
         <template slot-scope="{row}">
-          <span>{{ row.term }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="任课老师" min-width="100" align="center" show-overflow-tooltip>
-        <template slot-scope="{row}">
-          <span>{{ row.teacher.teaName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="学分" min-width="100" align="center" show-overflow-tooltip>
-        <template slot-scope="{row}">
-          <span>{{ row.course.courseCredit }}</span>
+          <span>{{ row.isCommitResult }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="操作"
         align="center"
-        min-width="70"
+        min-width="80"
         class-name="small-padding fixed-width"
         show-overflow-tooltip
       >
         <template slot-scope="{row}">
-          <el-button
-            :style="{color: '#409EFF'}"
-            size="mini"
-            type="text"
-          >
-            <span
-              v-if="!state"
-              :style="{color:'#409EFF'}"
-              @click="selectCourse(row.id)"
-            >选课</span>
-            <span
-              v-else
-              :style="{color:'#F56C6C'}"
-              @click="unselectCourse(row.id)"
-            >退选</span>
-          </el-button>
+          <svg-icon
+            v-if="row.experimentStatus === 0"
+            icon-class="zuoti"
+            class="icon-zuoti"
+            @click="doExperiment(row)"
+          />
+          <svg-icon v-if="row.experimentStatus >= 1" icon-class="chakan" class="icon-chakan" />
+          <svg-icon v-if="row.experimentStatus === 2" icon-class="fankui" class="icon-fankui" />
         </template>
       </el-table-column>
-    </el-table> -->
-    <!-- 分页器 -->
-    <!-- <div v-desktop>
+    </el-table>
+    <div v-desktop>
       <pagination
         v-show="total>0"
         :total="total"
@@ -101,43 +99,48 @@
         class="fr"
         @pagination="setPagination"
       />
-    </div> -->
-
+    </div>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
-import MobileTop from '@/components/MobileTop'
+import { mapGetters, mapMutations } from 'vuex'
 import { axiosGet, axiosPost } from '@/utils/axios'
 import { getViewportOffset } from '@/utils/index'
 import {
-  GET_SELECTED_COURSE_LIST,
-  GET_UNSELECTED_COURSE_LIST,
-  SELECT_COURSE,
-  UNSELECT_COURSE
+  GET_SELECTED_COURSE_ARRAY_URL,
+  GET_EXPERIMENT_PAGE_URL
 } from '@/api/url'
 
 export default {
-  name: 'SelectCourse',
-  components: { Pagination, MobileTop },
+  name: 'ExperimentList',
+  components: { Pagination },
   directives: { waves },
   data() {
     return {
       total: 0,
-      listLoading: true,
+      listLoading: false,
       tableKey: 0,
       list: null, // 表格数据
-      state: 0, // 0-未选, 1-已选
+      stateMap: [
+        { key: '', label: '全部' },
+        { key: 0, label: '未做' },
+        { key: 1, label: '已提交' },
+        { key: 2, label: '已批改' }
+      ],
+      teachingTask: [],
       listQuery: {
         currentPage: 1,
-        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 5,
-        teachingTaskAlias: ''
+        pageSize: 5,
+        teachingTaskId: '',
+        experimentStatus: '' // 0-未做, 1-已提交, 2-已批改
       }
     }
   },
   computed: {
+    ...mapGetters(['experiment']),
     isMobile() {
       return this.$store.getters.device === 'mobile'
     },
@@ -151,9 +154,61 @@ export default {
     }
   },
   created() {
-    this.getList()
+    this.getTaskArray()
+      .then(response => {
+        this.teachingTask = response.data
+        if (this.teachingTask.length) {
+          this.listQuery.teachingTaskId = this.teachingTask[0].key
+          this.getList()
+        }
+      })
   },
   methods: {
+    ...mapMutations({
+      'setExperiment': 'experiment/SET_EXPERIMENT',
+      'resetExperiment': 'experiment/RESET_EXPERIMENT'
+    }),
+    // 做实验
+    doExperiment(row) {
+      // 1. 清空
+      this.resetExperiment()
+      // 2. 设置
+      this.setExperiment(row)
+      // 3. 跳转
+      this.$router.push('/experiment/experiment-content')
+    },
+    // 分页查询实验
+    getList() {
+      return new Promise((resolve, reject) => {
+        this.listLoading = true
+        axiosGet(GET_EXPERIMENT_PAGE_URL, { params: this.listQuery })
+          .then(response => {
+            this.listLoading = false
+            const { content, total } = response.data
+            this.list = content
+            this.total = total
+            resolve(response)
+          })
+          .catch(error => {
+            this.$message.error(error.message || '出错')
+            this.listLoading = false
+            reject(error)
+          })
+      })
+    },
+    // 获取教学任务数组
+    getTaskArray() {
+      return new Promise((resolve, reject) => {
+        axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
+          .then(response => {
+            resolve(response)
+          })
+          .catch(error => {
+            this.$message.error(error.message || '出错')
+            reject(error)
+          })
+      })
+    },
     /* updatePage(val) {
       this.listQuery.currentPage = val
     },
@@ -198,14 +253,14 @@ export default {
           this.total = total
           this.listLoading = false
         })
-    },
+    },*/
     setPagination(currentPage, pageSize) {
       this.getList()
     },
     handleFilter() {
       this.listQuery.currentPage = 1
       this.getList()
-    } */
+    }
     /* resetTemp() {
       this.temp = {
         'id': '',
@@ -299,6 +354,23 @@ export default {
     padding: 0 5px;
     margin-left: 5px;
     line-height: 30px;
+  }
+}
+.el-table {
+  .icon-zuoti {
+    color: #67C23A;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .icon-chakan {
+    color: #409EFF;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .icon-fankui {
+    color: #E6A23C;
+    font-size: 20px;
+    cursor: pointer;
   }
 }
 </style>
