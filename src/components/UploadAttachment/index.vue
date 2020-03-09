@@ -1,7 +1,7 @@
 <template>
   <div class="upload-attachment flex">
-    <upload-base ref="upload" @onLoaded="onLoaded">
-      <el-button type="text" :disabled="disabled">
+    <upload-base v-show="!value" v-if="!disabled" ref="upload" @onLoaded="onLoaded">
+      <el-button type="text" :disabled="disabledBtn">
         <svg-icon icon-class="biezhen" />
         添加附件（仅限一个）
       </el-button>
@@ -14,7 +14,7 @@
           <p>{{ setFileSize(value.size) }}</p>
         </div>
       </div>
-      <span class="del" @click="deleteHandle">删除</span>
+      <span v-if="!disabled" class="del" @click="deleteHandle">删除</span>
     </div>
   </div>
 </template>
@@ -28,13 +28,17 @@ export default {
   components: { UploadBase },
   props: {
     value: {
-      type: [File, String],
+      type: [File, String, Object],
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 
   computed: {
-    disabled() {
+    disabledBtn() {
       return !!this.value
     }
   },
@@ -84,6 +88,10 @@ export default {
       }
       h4 {
         color: #666;
+        width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       p {
         font-size: 12px;

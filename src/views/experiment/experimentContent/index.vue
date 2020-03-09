@@ -1,56 +1,76 @@
 <template>
-  <div class="experiment-content">
-    <!-- <el-button type="info" size="mini" class="back" @click="back">{{ '<< 返回' }}</el-button> -->
-    <div class="experiment-content-block">
-      <span>题目内容</span>
-      <el-button class="fr" type="text" @click="back">返回</el-button>
-    </div>
-    <div class="experiment-content-header">
-      <h3 class="title">[实验{{ experiment.experimentOrder }}] {{ experiment.experimentTitle }}</h3>
-      <div class="line task">
-        <label>教学任务:</label>
-        <span>{{ experiment.teachingTaskAlias }}</span>
+  <div v-wh:h="device === 'mobile' ? 'calc(100vh - 105px)' : 'calc(100vh - 50px)'" class="experiment-content">
+    <el-scrollbar style="height:100%">
+      <!-- <el-button type="info" size="mini" class="back" @click="back">{{ '<< 返回' }}</el-button> -->
+      <div class="experiment-content-block">
+        <span>题目内容</span>
+        <el-button class="fr" type="text" @click="back">返回</el-button>
       </div>
-      <div class="line time">
-        <label>时间:</label>
-        <span>{{ experiment.updateTime }}</span>
+      <div class="experiment-content-header">
+        <h3 class="title">[实验{{ experiment.experimentOrder }}] {{ experiment.experimentTitle }}</h3>
+        <div class="line task">
+          <label>教学任务:</label>
+          <span>{{ experiment.teachingTaskAlias }}</span>
+        </div>
+        <div class="line time">
+          <label>时间:</label>
+          <span>{{ experiment.updateTime }}</span>
+        </div>
+        <div class="line attachment">
+          <label>附件:</label>
+          <span>
+            <el-button v-if="experiment.experimentAttachmentName" type="text" :style="{padding: 0}" @click="downloadAttachment">
+              {{ experiment.experimentAttachmentName }}
+            </el-button>
+            <span v-else>无</span>
+          </span>
+        </div>
       </div>
-      <div class="line attachment">
-        <label>附件:</label>
-        <span>
-          <a v-if="experiment.experimentAttachmentName" href="#">
-            {{ experiment.experimentAttachmentName }}
-          </a>
-          <span v-else>无</span>
-        </span>
+      <tinymce
+        :value="experiment.experimentContent"
+        :toolbar="['']"
+        menubar=""
+        :readonly="1"
+        :statusbar="false"
+      />
+      <div class="experiment-content-block">
+        <span>作答区</span>
       </div>
-    </div>
-    <tinymce
-      :value="experiment.experimentContent"
-      :toolbar="['']"
-      menubar=""
-      :readonly="1"
-      :statusbar="false"
-    />
-    <div class="experiment-content-block">
-      <span>作答区</span>
-    </div>
-    <tinymce v-model="experimentResult" :toolbar="toolbar" menubar="" :statusbar="false" />
-    <div class="flex experiment-content-footer">
-      <upload-attachment v-model="file" />
-      <el-button type="primary" class="submit" :is-loading="isLoading" @click="submit">
-        <svg-icon v-if="!isLoading" icon-class="tijiao" />
-        <span>提交</span>
-      </el-button>
-    </div>
+      <tinymce
+        :value="experimentResult.experimentResult"
+        :toolbar="experimentMode === 'check' ? [''] : toolbar"
+        :readonly="experimentMode === 'check' ? 1 : 0"
+        menubar=""
+        :statusbar="false"
+        @input="(experimentResult) => {setExperimentResult({experimentResult})}"
+      />
+      <div class="flex experiment-content-footer">
+        <upload-attachment
+          :value="experimentResult.file"
+          :disabled="experimentMode === 'check'"
+          @input="(file) =>
+          {setExperimentResult({file})}"
+        />
+        <el-button
+          v-if="experimentMode !== 'check'"
+          type="primary"
+          class="submit"
+          :loading="isLoading"
+          @click="submit"
+        >
+          <svg-icon v-if="!isLoading" icon-class="tijiao" />
+          <span>提交</span>
+        </el-button>
+      </div>
+    </el-scrollbar>
   </div>
 </template>
 
 <script>
 import Tinymce from '@/components/Tinymce'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import UploadAttachment from '@/components/UploadAttachment'
-import { SUBMIT_EXPERIMENT_RESULT } from '@/api/url.js'
+import { SUBMIT_EXPERIMENT_RESULT, DOWNLOAD_EXPERIMENT_ATTACHMENT_URL } from '@/api/url.js'
 import { axiosPost } from '@/utils/axios'
 export default {
   name: 'ExperimentContent',
@@ -60,15 +80,14 @@ export default {
   data() {
     return {
       isLoading: false,
+      device: this.$store.getters.device,
       toolbar: ['undo redo | fontselect fontsizeselect bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist indent outdent | image table link | hr emoticons'],
-      attachment: '',
-      experimentResult: '', // 实验内容
-      file: '' // 附件
+      attachment: '' // 附件
     }
   },
 
   computed: {
-    ...mapGetters(['experiment'])
+    ...mapGetters(['experiment', 'experimentMode', 'experimentResult'])
   },
 
   watch: {},
@@ -78,34 +97,39 @@ export default {
   mounted() {},
 
   methods: {
+    ...mapMutations({
+      'setExperiment': 'experiment/SET_EXPERIMENT',
+      'setExperimentResult': 'experiment/SET_EXPERIEMNT_RESULT'
+    }),
+    ...mapActions({ 'submitExperimentResult': 'experiment/submitExperimentResult' }),
+    // 下载附件
+    downloadAttachment() {
+      const { experimentAttachmentName, id } = this.experiment
+      var a = document.createElement('a')
+      a.download = experimentAttachmentName
+      a.style.display = 'none'
+      const fileurl = process.env.VUE_APP_BASE_API + DOWNLOAD_EXPERIMENT_ATTACHMENT_URL + '?id=' + id
+      a.href = fileurl
+      document.body.appendChild(a)
+      a.click() // 触发点击
+      document.body.removeChild(a) // 然后移除
+    },
     // 提交事件
     submit() {
-      const data = {
-        experimentId: this.experiment.id,
-        experimentResult: this.experimentResult,
-        file: this.file
+      // 1. 检查
+      if (!this.experimentResult.experimentResult && !this.experimentResult.file) {
+        this.$message.warning('请填写实验结果或者提交附件')
+        return false
       }
-      this.submitExperimentResult(data)
+      this.isLoading = true
+      this.submitExperimentResult()
         .then(() => {
+          this.isLoading = false
           this.$router.push('/experiment/experiment-list')
         })
-    },
-    // 提交实验结果
-    submitExperimentResult(data) {
-      return new Promise((resolve, reject) => {
-        this.isLoading = true
-        axiosPost(SUBMIT_EXPERIMENT_RESULT, data)
-          .then(response => {
-            this.$message.success('实验提交成功')
-            this.isLoading = false
-            resolve(response)
-          })
-          .catch(error => {
-            this.$message.error(error.message || '出错')
-            this.isLoading = false
-            reject(error)
-          })
-      })
+        .catch(() => {
+          this.isLoading = false
+        })
     },
     back() {
       this.$router.go(-1)
@@ -116,11 +140,16 @@ export default {
 
 </script>
 <style lang='scss' scoped>
+::v-deep .el-scrollbar__wrap {
+    overflow-x: hidden;
+  }
 .experiment-content {
   /* .back {
     padding: 5px;
     margin-left: 20px;
   } */
+  // height: 100px;
+
   &-block {
     line-height: 40px;
     font-size: 16px;

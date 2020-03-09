@@ -1,11 +1,11 @@
 <template>
   <div class="mobile-top flex">
-    <div class="mobile-top-search grow">
+    <div class="mobile-top-search grow flex">
       <i class="el-icon-search mobile-top-search-icon" />
 
       <input
         type="text"
-        class="mobile-top-search-input"
+        class="mobile-top-search-input grow"
         :value="value"
         :placeholder="placeholder"
         @input="(e) => $emit('input', e.target.value)"
@@ -62,7 +62,9 @@ export default {
     color: #ccc;
     padding: 5px;
     &-input {
+      margin-left: 5px; 
       border: none;
+      // width: 100%;
       &:focus {
         outline: none;
       }

@@ -25,5 +25,5 @@ export const GET_EXPERIMENT_PAGE_URL = '/student/teachingTaskExperiment/pageExpe
 export const DOWNLOAD_EXPERIMENT_ATTACHMENT_URL = '/student/teachingTaskExperiment/downloadAttachment' // 下载附件
 // 实验结果管理
 export const SUBMIT_EXPERIMENT_RESULT = '/student/experimentResult/submitExperimentResult' // 提交实验结果
-export const GET_EXPERIMENT_RESULT = '/student/experimentResult/getById' // 根据id查询实验结果
+export const GET_EXPERIMENT_RESULT = '/student/experimentResult/getByExperimentId' // 根据id查询实验结果
 

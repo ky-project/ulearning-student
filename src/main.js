@@ -54,6 +54,13 @@ Vue.directive('desktop', {
     }
   }
 })
+Vue.directive('wh', {
+  bind: (el, binding) => {
+    const { arg, value } = binding
+    const wh = arg === 'width' ? 'width' : 'height'
+    el.style[wh] = value
+  }
+})
 new Vue({
   el: '#app',
   router,

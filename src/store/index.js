@@ -10,7 +10,7 @@ import VuexPersistence from 'vuex-persist' // 持久化存储
 Vue.use(Vuex)
 const vuexLocal = new VuexPersistence({
   storage: window.sessionStorage,
-  modules: ['experiment']
+  modules: ['experiment', 'app']
 })
 const store = new Vuex.Store({
   modules: {
