@@ -22,7 +22,7 @@
     <!-- 手机端适配结束 -->
     <div class="right-menu">
       <div class="gonggao">
-        <svg-icon icon-class="gonggao" class="icon" />
+        <svg-icon icon-class="gonggao" class="icon" @click="$router.push('/notice/notice-list')" />
       </div>
       <div class="avatar" @click.stop="uploadHeadImg">
         <img :src="userInfo.teaPhoto ? userInfo.teaPhoto : teaPhoto" alt="">

@@ -1,24 +1,23 @@
 <template>
   <div>
-    <Tabbar :data="data" />
+    <DownloadBox :file="file" />
   </div>
 </template>
 
 <script>
-import Tabbar from '@/layout/components/Tabbar'
+import DownloadBox from '@/views/notice/components/DownloadBox'
 export default {
   name: 'Test',
 
-  components: { Tabbar },
+  components: { DownloadBox },
   props: [''],
   data() {
     return {
-      data: [
-        { icon: 'xuanke', label: '选课' },
-        { icon: 'kaoshi', label: '测试' },
-        { icon: 'shiyan', label: '实验' },
-        { icon: 'ziliao', label: '资源' }
-      ]
+      file: {
+        name: 'h2llo.txt',
+        size: 1000000,
+        id: ''
+      }
     }
   },
 

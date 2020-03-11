@@ -26,4 +26,7 @@ export const DOWNLOAD_EXPERIMENT_ATTACHMENT_URL = '/student/teachingTaskExperime
 // 实验结果管理
 export const SUBMIT_EXPERIMENT_RESULT = '/student/experimentResult/submitExperimentResult' // 提交实验结果
 export const GET_EXPERIMENT_RESULT = '/student/experimentResult/getByExperimentId' // 根据id查询实验结果
+// 通告管理
+export const GET_NOTICE_PAGE_URL = '/student/teachingTaskNotice/pageList' // 分页查询通告
+export const DOWNLOAD_NOTICE_URL = '/student/teachingTaskNotice/downloadAttachment' // 下载附件
 

@@ -76,6 +76,27 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/notice',
+    component: Layout,
+    redirect: '/notice/notice-list',
+    children: [
+      {
+        path: 'notice-list',
+        name: 'NoticeList',
+        hidden: true,
+        component: () => import('@/views/notice/noticeList/index.vue'),
+        meta: { title: '通告管理' }
+      },
+      {
+        path: 'notice-detail',
+        name: 'NoticeDetail',
+        hidden: true,
+        component: () => import('@/views/notice/noticeDetail'),
+        meta: { title: '通告详情' }
+      }
+    ]
+  },
+  {
     path: '/experiment',
     component: Layout,
     redirect: '/experiment/experiment-list',
