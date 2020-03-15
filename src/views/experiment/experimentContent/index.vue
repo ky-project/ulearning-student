@@ -44,7 +44,7 @@
         :statusbar="false"
         @input="(experimentResult) => {setExperimentResult({experimentResult})}"
       />
-      <div class="flex experiment-content-footer">
+      <div class="flex justify-between experiment-content-footer">
         <upload-attachment
           :value="experimentResult.file"
           :disabled="experimentMode === 'check'"

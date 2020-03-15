@@ -107,6 +107,8 @@ export function param2Obj(url) {
 }
 
 export function filterObj(obj, arr) {
+  // console.log('obj', obj)
+  // console.log('arr', arr)
   if (typeof obj !== 'object' || !Array.isArray(arr)) {
     throw new Error('filterObj 参数格式不正确！')
   } else {

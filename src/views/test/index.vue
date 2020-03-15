@@ -1,23 +1,21 @@
 <template>
   <div>
-    <DownloadBox :file="file" />
+    <GradeProgress
+      :percentage="percentage"
+    />
   </div>
 </template>
 
 <script>
-import DownloadBox from '@/views/notice/components/DownloadBox'
+import GradeProgress from '@/views/experiment/components/GradeProgress'
 export default {
   name: 'Test',
 
-  components: { DownloadBox },
+  components: { GradeProgress },
   props: [''],
   data() {
     return {
-      file: {
-        name: 'h2llo.txt',
-        size: 1000000,
-        id: ''
-      }
+      percentage: 0
     }
   },
 

@@ -30,12 +30,15 @@ export default {
   name: 'NoticeDetail',
 
   components: { DownloadBox },
+
   props: [''],
+
   data() {
     return {
       keyList: []
     }
   },
+
   computed: {
     ...mapGetters(['notice']),
     fileList() {
@@ -56,6 +59,7 @@ export default {
   },
 
   watch: {},
+
   created() {
     // console.log(this.fileList)
     this.keyList = this.getKeyList()

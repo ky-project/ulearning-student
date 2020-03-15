@@ -134,7 +134,12 @@
             class="icon-chakan"
             @click="checkExperiment(row)"
           />
-          <svg-icon v-if="row.experimentStatus === 2" icon-class="fankui" class="icon-fankui" />
+          <svg-icon
+            v-if="row.experimentStatus === 2"
+            icon-class="fankui"
+            class="icon-fankui"
+            @click="experimentResult(row)"
+          />
         </template>
       </el-table-column>
     </el-table>
@@ -226,6 +231,12 @@ export default {
     ...mapActions({
       'getExperimentResult': 'experiment/getExperimentResult'
     }),
+    // 反馈
+    experimentResult(row) {
+      // 获取实验id
+      console.log(row.id)
+      this.$router.push('/experiment/experiment-result?experimentId=' + row.id)
+    },
     // 手机端查找事件
     searchHandler() {
       // 1. 清空条件
@@ -245,6 +256,7 @@ export default {
     },
     // 查看实验
     checkExperiment(row) {
+      console.log('实验id', row.id)
       // 1. 清空
       this.resetExperiment()
       this.resetExperimentResult()
