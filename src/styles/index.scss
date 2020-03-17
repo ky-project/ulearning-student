@@ -65,6 +65,10 @@ div:focus {
   justify-content: center;
 }
 
+.flex.justify-end {
+  justify-content: flex-end;
+}
+
 .flex.grow {
   flex-grow: 1;
 }

@@ -40,7 +40,7 @@ export default {
 </script>
 <style lang='scss' scoped>
 .home {
-  height: calc(100vh - 50px);
+  height: 100%;
   .bg {
     object-fit: fill;
     height: 100%;

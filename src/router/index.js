@@ -126,6 +126,42 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/exam',
+    component: Layout,
+    redirect: '/exam/exam-select',
+    meta: { title: '学生测试', icon: 'kaoshi' },
+    children: [
+      {
+        path: 'exam-select',
+        name: 'ExamSelect',
+        hidden: true,
+        component: () => import('@/views/exam/examSelect'),
+        meta: { title: '选择测试' }
+      },
+      {
+        path: 'exam-mission',
+        name: 'ExamMission',
+        hidden: true,
+        component: () => import('@/views/exam/examMission'),
+        meta: { title: '测试任务' }
+      }
+      /* {
+        path: 'experiment-content',
+        name: 'ExperimentContent',
+        hidden: true,
+        component: () => import('@/views/experiment/experimentContent'),
+        meta: { title: '实验内容' }
+      },
+      {
+        path: 'experiment-result',
+        name: 'ExperimentResult',
+        hidden: true,
+        component: () => import('@/views/experiment/experimentResult'),
+        meta: { title: '实验结果' }
+      } */
+    ]
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('@/views/test/index'),

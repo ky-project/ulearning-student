@@ -69,7 +69,7 @@
       </el-table-column>
     </el-table>
     <!-- 文件区手机 -->
-    <div v-loading="loading" class="file-zone-mobile">
+    <div v-mobile v-loading="loading" class="file-zone-mobile">
       <el-scrollbar style="height:100%">
         <ul v-if="documentList.length" class="file-zone-mobile-list">
           <li

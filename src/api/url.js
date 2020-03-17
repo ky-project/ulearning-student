@@ -29,4 +29,9 @@ export const GET_EXPERIMENT_RESULT = '/student/experimentResult/getByExperimentI
 // 通告管理
 export const GET_NOTICE_PAGE_URL = '/student/teachingTaskNotice/pageList' // 分页查询通告
 export const DOWNLOAD_NOTICE_URL = '/student/teachingTaskNotice/downloadAttachment' // 下载附件
-
+// 测试管理
+export const GET_EXAMLIST_URL = '/student/examinationTask/getExaminationTaskArr' // 根据教学任务id查询测试任务数组
+export const GET_EXAM_URL = '/student/examinationTask/getById' // 根据id查询测试任务
+// 学生测试管理
+export const START_EXAM_URL = '/student/studentExaminationTask/startExaminationTask' // 开始测试
+export const SAVE_EXAM_URL = '/student/studentExaminationTask/submitResult' // 保存/提交测试结果
