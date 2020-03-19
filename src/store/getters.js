@@ -10,6 +10,8 @@ const getters = {
   experimentMode: state => state.experiment.mode,
   experimentResult: state => state.experiment.experimentResult,
   // 通告相关
-  notice: state => state.notice.notice
+  notice: state => state.notice.notice,
+  // 测试相关
+  examDetail: state => state.examDetail.examDetail
 }
 export default getters

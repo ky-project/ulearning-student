@@ -20,6 +20,10 @@ export default {
 
   components: {},
   props: {
+    disabled: {
+      type: Boolean,
+      default: false
+    },
     // [{value: xxx, content: xxx}]
     questionOption: {
       type: Array,
@@ -65,6 +69,9 @@ export default {
       }
     },
     clickHandler(item) {
+      if (this.disabled) {
+        return false
+      }
       // 单选模式
       if (!this.multiple) {
         this.$emit('change', item.value)

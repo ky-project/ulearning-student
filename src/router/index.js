@@ -128,15 +128,26 @@ export const constantRoutes = [
   {
     path: '/exam',
     component: Layout,
-    redirect: '/exam/exam-select',
     meta: { title: '学生测试', icon: 'kaoshi' },
     children: [
       {
         path: 'exam-select',
         name: 'ExamSelect',
-        hidden: true,
         component: () => import('@/views/exam/examSelect'),
-        meta: { title: '选择测试' }
+        meta: { title: '选择测试', icon: 'xuanze' }
+      },
+      {
+        path: 'exam-result',
+        name: 'ExamResult',
+        component: () => import('@/views/exam/examResult'),
+        meta: { title: '测试结果', icon: 'jieguo' }
+      },
+      {
+        path: 'exam-detail',
+        name: 'ExamDetail',
+        hidden: true,
+        component: () => import('@/views/exam/examDetail'),
+        meta: { title: '测试明细' }
       },
       {
         path: 'exam-mission',
@@ -145,20 +156,6 @@ export const constantRoutes = [
         component: () => import('@/views/exam/examMission'),
         meta: { title: '测试任务' }
       }
-      /* {
-        path: 'experiment-content',
-        name: 'ExperimentContent',
-        hidden: true,
-        component: () => import('@/views/experiment/experimentContent'),
-        meta: { title: '实验内容' }
-      },
-      {
-        path: 'experiment-result',
-        name: 'ExperimentResult',
-        hidden: true,
-        component: () => import('@/views/experiment/experimentResult'),
-        meta: { title: '实验结果' }
-      } */
     ]
   },
   {

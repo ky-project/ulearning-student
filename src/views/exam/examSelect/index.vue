@@ -32,7 +32,7 @@
             :key="item.key"
             :label="item.label"
             :value="item.key"
-            :disabled="item.condition == '2'"
+            :disabled="item.condition === 2"
           />
         </el-select>
       </el-form-item>
@@ -127,7 +127,7 @@ export default {
             if (this.examList.length) {
               this.ruleForm.id = this.examList[0].key
             }
-            this.examListMap[teachingTaskId] = response.data
+            this.examListMap[teachingTaskId] = this.examList
           })
       }
     },

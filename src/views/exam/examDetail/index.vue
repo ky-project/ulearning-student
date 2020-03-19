@@ -1,22 +1,20 @@
 <template>
-  <div v-loading="loading" class="exam-mission flex">
+  <div class="exam-mission flex">
     <div class="exam-mission-sidebar">
-      <div class="question-card side-bottom">
-        <header-tag text="题卡" />
-        <question-card
-          class="card"
-          :data="cardData"
-          :active-name.sync="activeName"
-          :question-id="questionId"
-          @update="selectQuestion"
-        />
-      </div>
+      <header-tag text="题卡" />
+      <QuestionCard
+        class="card"
+        :data="cardData"
+        :active-name.sync="activeName"
+        :question-id="questionId"
+        @update="selectQuestion"
+      />
     </div>
     <div class="top exam-mission-main">
       <el-scrollbar :style="{height: '100%'}">
         <div class="exam-mission-main-inner">
-          <h3 class="header">{{ examinationTask.examinationName }}</h3>
-          <h4 class="title">一、{{ typeMap[questionType] }}</h4>
+          <h3 class="header">{{ examDetail.examinationName }}</h3>
+          <h4 class="title">{{ questionSort + '、' + typeMap[questionType] }}</h4>
           <p class="question-title">
             {{ `${orderNumber}. ${currentQuestion.questionText}` }}
           </p>
@@ -26,14 +24,32 @@
           <!-- 非填空题 -->
           <choice-question
             v-if="questionType !== '4'"
+            :disabled="true"
             :question-option="questionOption"
             :value="result"
             :multiple="questionType === '3'"
             :show-value="questionType !== '2'"
-            @change="updateAnswer"
           />
           <!-- 填空题 -->
-          <completion-question v-else :answer-list="result" @change="updateAnswer" />
+          <completion-question v-else :disabled="true" :answer-list="result" />
+          <div class="question-message flex">
+            <div class="question-message-item">
+              <label>【知识点】</label>
+              <span>{{ currentQuestion.questionKnowledge.split('|#|').join(',') }}</span>
+            </div>
+            <div class="question-message-item">
+              <label>【难度】</label>
+              <span>{{ currentQuestion.questionDifficulty }}</span>
+            </div>
+            <div class="question-message-item">
+              <label>【答案】</label>
+              <span>{{ currentQuestion.questionKey.split('|#|').join(',') }}</span>
+            </div>
+            <div class="question-message-item">
+              <label>【得分】</label>
+              <span>{{ currentQuestion.studentScore }} 分</span>
+            </div>
+          </div>
           <div class="btns flex justify-end">
             <el-button @click="prev">上一题</el-button>
             <el-button type="primary" @click="next">下一题</el-button>
@@ -42,65 +58,91 @@
       </el-scrollbar>
     </div>
     <div class="exam-mission-sidebar">
-      <div class="exam-message side-top">
-        <!-- <header-tag text="测试任务" /> -->
-        <!-- <div class="task">
-          <svg-icon icon-class="kaoshi" class="icon--task" />
-          {{ examinationTask.examinationName }}
-        </div> -->
-        <div class="timer side-top">
-          <header-tag text="剩余时间" />
-          <time-meter :time="examiningRemainTime" :on="on" @end="submit" @now="restTime" />
+      <!--
+      totalScore: 0,
+      stuTotalScore: 0,
+      examinationShowResult: false,
+      ranking: 0,
+      submitNumber: 0,
+      examinationName: '',
+      examinationTaskId: 0,
+      examiningStateSwitchTime: '', -->
+      <div class="side-top performance">
+        <header-tag text="成绩" />
+        <grade-progress :score="examDetail.stuTotalScore" :percentage="scorePercentage" />
+        <div class="line">
+          <label>排名：</label>
+          <span>第 {{ examDetail.ranking }} 名</span>
+        </div>
+        <div class="line">
+          <label>提交：</label>
+          <span>{{ examDetail.submitNumber }} 人</span>
+        </div>
+        <div class="line">
+          <label>总分：</label>
+          <span>{{ examDetail.stuTotalScore }} 分</span>
         </div>
       </div>
-      <div class="base-message side-middle">
-        <header-tag text="基本信息" />
-        <div class="line">
-          <label>姓名：</label>
-          <span>张三</span>
-        </div>
-        <div class="line">
-          <label>性别：</label>
-          <span>男</span>
-        </div>
-        <div class="line">
-          <label>系别：</label>
-          <span>机电系</span>
-        </div>
-      </div>
-      <div class="operator side-bottom">
-        <header-tag text="操作" />
-        <el-button @click="save">保存</el-button><el-button type="primary" @click="submit">交卷</el-button>
+      <div class="side-bottom">
+        <header-tag text="正确率" />
+        <accuracy :data="accuracyData" />
       </div>
     </div>
-    <!-- 提示弹窗 -->
-    <feedback :visible="visible" />
   </div>
 </template>
 
 <script>
 import ChoiceQuestion from './../components/ChoiceQuestion'
+import Accuracy from './../components/Accuracy'
 import HeaderTag from '@/components/HeaderTag'
 import QuestionCard from './../components/QuestionCard'
-import TimeMeter from './../components/TimeMeter'
 import CompletionQuestion from './../components/CompletionQuestion'
-import Feedback from './../components/Feedback'
+import GradeProgress from '@/views/experiment/components/GradeProgress'
 import { mapGetters } from 'vuex'
-import { START_EXAM_URL, GET_EXAM_URL, SAVE_EXAM_URL } from '@/api/url'
-import { axiosGet, axios2 } from '@/utils/axios'
+import { GET_EXAM_URL } from '@/api/url'
+import { axiosGet } from '@/utils/axios'
 import { typeMap } from './../config.js'
 export default {
   name: 'ExamMission',
-  components: { HeaderTag, QuestionCard, TimeMeter, ChoiceQuestion, CompletionQuestion, Feedback },
+
+  components: {
+    HeaderTag,
+    QuestionCard,
+    ChoiceQuestion,
+    CompletionQuestion,
+    GradeProgress,
+    Accuracy
+  },
   props: [''],
   data() {
     return {
+      tempData: [
+        { label: '选择题', percentage: 20 },
+        { label: '填空题', percentage: 40 },
+        { label: '多选题', percentage: 60 },
+        { label: '判断题', percentage: 80 }
+      ],
       typeMap: typeMap,
-      cardData: [],
-      activeName: '',
-      questionId: 0,
+      /* cardData: [
+        {
+          name: '0',
+          label: '单选题',
+          ids: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+        },
+        {
+          name: '1',
+          label: '多选题',
+          ids: [11, 22, 33, 44, 55, 66, 77, 88, 99]
+        }, {
+          name: '2',
+          label: '填空题',
+          ids: [112, 222, 332, 424, 525, 662, 727, 288, 929]
+        }
+      ], */
+      activeName: '0',
+      questionId: 1,
       orderNumber: 1,
-      questionType: '',
+      questionType: 2,
       exam: '',
       examinationTask: '',
       on: false,
@@ -116,17 +158,91 @@ export default {
       ],
       result: '', // 临时存储单选，多选，判断结果
       autoSaveTrigger: 0,
-      // 弹窗相关
-      visible: false,
-      // 加载
-      loading: false
+      // 进度条相关
+      customColors: [
+        { color: '#f56c6c', percentage: 20 },
+        { color: '#e6a23c', percentage: 40 },
+        { color: '#5cb87a', percentage: 60 },
+        { color: '#1989fa', percentage: 80 },
+        { color: '#6f7ad3', percentage: 100 }
+      ],
+      questionSort: '一' // 大题序列
     }
   },
 
   computed: {
     ...mapGetters([
-      'userInfo'
+      'userInfo',
+      'examDetail'
     ]),
+
+    cardData() {
+      /* courseQuestion格式
+       {
+        '1': [
+          {
+            id: 0,
+            questionText: '',
+            questionUrl: '',
+            questionType: 0,
+            questionOption: '',
+            questionDifficulty: 0,
+            grade: 0,
+            questionKnowledge: '',
+            studentAnswer: '',
+            questionKey: '',
+            studentScore: 0
+          }
+        ]
+      }
+       */
+      const data = []
+      if (this.examDetail && this.examDetail.courseQuestion) {
+        const courseQuestion = this.examDetail.courseQuestion
+        Object.keys(courseQuestion).forEach(key => {
+          if (courseQuestion[key].length) {
+            const obj = { label: '', name: '', items: [] }
+            obj.label = this.typeMap[key]
+            obj.name = key
+            courseQuestion[key].forEach(item => {
+              let bgc = ''
+              if (item.studentScore < item.grade) {
+                bgc = 'red'
+              }
+              obj.items.push({ id: item.id, bgc })
+            })
+            data.push(obj)
+          }
+        })
+      }
+      return data
+    },
+    scorePercentage() {
+      return this.examDetail.stuTotalScore / this.examDetail.totalScore * 100
+    },
+    accuracyData() {
+      const data = []
+      if (this.examDetail && this.examDetail.accuracy) {
+        /* accuracy格式
+       accuracy: {
+          '1': {
+            questionNumber: 4,
+            correctNumber: 0
+          }
+        }, */
+        const accuracy = this.examDetail.accuracy
+        Object.keys(accuracy).forEach(key => {
+          const item = accuracy[key]
+          const dataItem = {}
+          if (item.questionNumber) {
+            dataItem.label = this.typeMap[key]
+            dataItem.percentage = parseInt(Number(item.correctNumber) / Number(item.questionNumber) * 100)
+            data.push(dataItem)
+          }
+        })
+      }
+      return data
+    },
     // 获取学生选项
     answer() {
       const index = this.questionAnswerDtoList.findIndex(item => item.questionId === this.questionId)
@@ -137,8 +253,8 @@ export default {
     },
     // 当前题目
     currentQuestion() {
-      if (this.exam && this.questionType && this.orderNumber > 0) {
-        return this.exam[this.questionType][this.orderNumber - 1]
+      if (this.examDetail.courseQuestion && this.questionType && this.orderNumber > 0) {
+        return this.examDetail.courseQuestion[this.questionType][this.orderNumber - 1]
       }
       return {}
     },
@@ -169,7 +285,6 @@ export default {
           { value: '错误', content: '错误' }
         ]
       }
-      console.log(arr)
       return arr
     }
   },
@@ -187,6 +302,8 @@ export default {
             this.result = this.questionAnswerDtoList[index].studentAnswer || ''
           }
         }
+        // 更新大题序号
+        this.getQuestionSort()
       },
       immediate: true
     }
@@ -201,101 +318,47 @@ export default {
   mounted() {},
 
   methods: {
-    /* // 打开
-    open() {
-      let seconds = 60
-      const timer = setInterval(() => {
-        seconds--
-        if (seconds === 0) {
-          clearInterval(timer)
-        }
-      }, 1000)
-      this.$confirm(`测试结果将会在${seconds}s内生成，请耐心等待...`, '提示', {
-        confirmButtonText: '立即查看',
-        cancelButtonText: '取消',
-        type: 'info'
-      }).then(() => {
-        this.clearInterval(timer)
-        this.$router.push('/exam/exam-result')
-      }).catch(() => {
-        this.clearInterval(timer)
-        this.$router.push('/exam/exam-select')
-      })
+    initial() {
+      // 4. 设置答案
+      this.setQuestionAnswerDtoList(this.examDetail.courseQuestion)
+      // 7. 初始化题卡
+      if (this.cardData.length) {
+        this.activeName = this.cardData[0].name
+        this.questionId = this.cardData[0].items[0].id
+        this.questionType = this.activeName
+      }
+    },
+    /* async initial() {
+      // 1. 获取examinationTaskId
+      this.examinationTaskId = this.$route.query.id
+      // 2. 获取测试任务基本信息
+      const resp = await this.getExam({ id: this.examinationTaskId })
+      this.examinationTask = resp.data
+      // 3. 获取试题
+      const response = await this.startExam({ examinationTaskId: this.examinationTaskId })
+      this.exam = response.data.courseQuestion
+      // 4. 设置答案
+      this.setQuestionAnswerDtoList(this.exam)
+      // 5. 设置时间
+      this.examiningRemainTime = response.data.examiningRemainTime * 60
+      // 6. 设置题卡
+      this.setDataCard(this.exam)
+      // 7. 初始化题卡
+      if (this.cardData.length) {
+        this.activeName = this.cardData[0].name
+        this.questionId = this.cardData[0].ids[0]
+        this.questionType = this.activeName
+      }
+      // 8. 开始测试
+      this.on = true
     }, */
-    // 保存
-    save() {
-      return new Promise(resolve => {
-        // 格式化
-        this.questionAnswerDtoList.forEach(question => {
-          if (question.studentAnswer instanceof Array) {
-            question.studentAnswer = question.studentAnswer.join('|#|')
-          }
-        })
-        const data = {
-          examinationTaskId: this.examinationTaskId,
-          isSubmit: false,
-          questionAnswerDtoList: this.questionAnswerDtoList
-        }
-        this.saveExam(data)
-          .then(response => {
-            this.$message.success('保存成功')
-            resolve()
-          })
-      })
-    },
-    // 交卷
-    submit() {
-      // 判空
-      /* const index = this.questionAnswerDtoList.findIndex(question => !question.studentAnswer)
-        if (index !== -1) {
-          this.$message.warning('请确保已经做完全部题目再提交')
-          return false
-        } */
-      // 格式化
-      /* this.questionAnswerDtoList.forEach(question => {
-        if (question.studentAnswer instanceof Array) {
-          question.studentAnswer = question.studentAnswer.join('|#|')
-        }
-      })
-      const data = {
-        examinationTaskId: this.examinationTaskId,
-        isSubmit: true,
-        questionAnswerDtoList: this.questionAnswerDtoList
-      }
-      this.saveExam(data)
-        .then(response => {
-          this.$message.success('提交成功')
-
-        }) */
-      this.on = false
-      this.visible = true
-    },
-    // 更新题目答案
-    updateAnswer(value) {
-      const index = this.getAnswerById(this.questionId)
-      // 更新
-      if (index !== -1) {
-        this.questionAnswerDtoList[index].studentAnswer = value
-      }
-      // 设置result
-      this.result = value
-    },
-    // 保存测试结果
-    saveExam(data) {
-      console.log('data', data)
-      return new Promise((resolve, reject) => {
-        axios2({
-          method: 'POST',
-          url: SAVE_EXAM_URL,
-          data,
-          headers: { 'Content-Type': 'application/json' }
-        }).then(response => {
-          resolve(response)
-        }).catch(error => {
-          this.$message.error(error.message || '出错')
-          reject(error)
-        })
-      })
+    // 获取大题序列
+    getQuestionSort() {
+      const courseQuestion = this.examDetail.courseQuestion
+      const typeOrders = Object.keys(courseQuestion).filter(key => courseQuestion[key].length !== 0)
+      const index = typeOrders.findIndex(item => item === this.activeName)
+      const orderMap = ['一', '二', '三', '四']
+      this.questionSort = orderMap[index]
     },
     // 根据questionId获取索引
     getAnswerById(questionId) {
@@ -316,14 +379,11 @@ export default {
     },
     // 上一题
     prev() {
-      // 保存结果(有，重置；没有，添加)
-      // this.saveOneAnswer(this.questionId)
       // 设置题目id和序列
+      const courseQuestion = this.examDetail.courseQuestion
       if (this.orderNumber !== 1) {
-        this.questionId = this.exam[this.questionType][this.orderNumber - 1 - 1].id
+        this.questionId = courseQuestion[this.questionType][this.orderNumber - 1 - 1].id
         this.orderNumber--
-        // 设置题目结果
-        // this.result = this.getOneAnswer(this.questionId)
       } else {
         const types = this.cardData.map(item => item.name)
         const index = types.findIndex(item => item === this.questionType)
@@ -332,25 +392,20 @@ export default {
           this.activeName = types[index - 1]
           this.questionType = types[index - 1]
           // 设置题目id和序列
-          const length = this.exam[this.questionType].length
-          this.questionId = this.exam[this.questionType][length - 1].id
+          const length = courseQuestion[this.questionType].length
+          this.questionId = courseQuestion[this.questionType][length - 1].id
           this.orderNumber = length
-          // 设置题目结果
-          // this.result = this.getOneAnswer(this.questionId)
         }
       }
     },
     // 下一题
     next() {
-      // 保存结果(有，重置；没有，添加)
-      // this.saveOneAnswer(this.questionId)
       // 设置题目id和序列
-      const length = this.exam[this.questionType].length
+      const courseQuestion = this.examDetail.courseQuestion
+      const length = courseQuestion[this.questionType].length
       if (this.orderNumber !== length) {
-        this.questionId = this.exam[this.questionType][this.orderNumber - 1 + 1].id
+        this.questionId = courseQuestion[this.questionType][this.orderNumber - 1 + 1].id
         this.orderNumber++
-        // 设置题目结果
-        // this.result = this.getOneAnswer(this.questionId)
       } else {
         const types = this.cardData.map(item => item.name)
         const index = types.findIndex(item => item === this.questionType)
@@ -359,53 +414,20 @@ export default {
           this.activeName = types[index + 1]
           this.questionType = types[index + 1]
           // 设置题目id和序列
-          this.questionId = this.exam[this.questionType][0].id
+          this.questionId = courseQuestion[this.questionType][0].id
           this.orderNumber = 1
-          // 设置题目结果
-          // this.result = this.getOneAnswer(this.questionId)
         }
       }
     },
     // 题卡切换试题
     selectQuestion({ questionId, orderNumber }) {
       if (this.questionId !== questionId) {
-        // 保存结果
-        // this.saveOneAnswer(this.questionId)
         // 设置题目id和序列
         this.questionId = questionId
         this.orderNumber = orderNumber
         // 设置题型
         this.questionType = this.activeName
-        // 设置题目结果
-        // this.result = this.getOneAnswer(this.questionId)
       }
-    },
-    // 初始化试卷
-    async initial() {
-      this.loading = true
-      // 1. 获取examinationTaskId
-      this.examinationTaskId = this.$route.query.id
-      // 2. 获取测试任务基本信息
-      const resp = await this.getExam({ id: this.examinationTaskId })
-      this.examinationTask = resp.data
-      // 3. 获取试题
-      const response = await this.startExam({ examinationTaskId: this.examinationTaskId })
-      this.exam = response.data.courseQuestion
-      // 4. 设置答案
-      this.setQuestionAnswerDtoList(this.exam)
-      // 5. 设置时间
-      this.examiningRemainTime = response.data.examiningRemainTime * 60
-      // 6. 设置题卡
-      this.setDataCard(this.exam)
-      // 7. 初始化题卡
-      if (this.cardData.length) {
-        this.activeName = this.cardData[0].name
-        this.questionId = this.cardData[0].items[0].id
-        this.questionType = this.activeName
-      }
-      // 8. 开始测试
-      this.on = true
-      this.loading = false
     },
     // 设置答案
     setQuestionAnswerDtoList(exam) {
@@ -438,7 +460,6 @@ export default {
           if ((question.questionType === 3 || question.questionType === 4) && question.studentAnswer) {
             // 多选题和填空题答案拆分为数组
             studentAnswer = question.studentAnswer.split('|#|')
-            console.log('studentAnswer', studentAnswer)
           }
           const answer = {
             questionId: question.id,
@@ -449,17 +470,18 @@ export default {
       })
     },
     // 设置题卡
-    setDataCard(exam) {
+    /* setDataCard(exam) {
+
       Object.keys(exam).forEach(key => {
         if (this.exam[key].length) {
-          const obj = { label: '', name: '', items: [] }
+          const obj = { label: '', name: '', ids: [] }
           obj.label = this.typeMap[key]
           obj.name = key
-          this.exam[key].forEach(item => obj.items.push({ id: item.id }))
+          this.exam[key].forEach(item => obj.ids.push(item.id))
           this.cardData.push(obj)
         }
       })
-    },
+    }, */
     // 根据id查询测试任务
     getExam(data) {
       return new Promise((resolve, reject) => {
@@ -472,30 +494,6 @@ export default {
             reject(error)
           })
       })
-    },
-    // 组卷
-    startExam(data) {
-      return new Promise((resolve, reject) => {
-        axiosGet(START_EXAM_URL, { params: data })
-          .then(response => {
-            resolve(response)
-          })
-          .catch(error => {
-            this.$message.error(error.message || '出错')
-            reject(error)
-          })
-      })
-    },
-    // 剩余时间
-    restTime(now) {
-      this.autoSaveTrigger++
-      // 每5分钟自动保存
-      if (this.autoSaveTrigger === 20) {
-        this.save()
-          .then(() => {
-            this.autoSaveTrigger = 0
-          })
-      }
     }
   }
 }
@@ -528,65 +526,69 @@ export default {
       font-size: 16px;
       line-height: 32px;
     }
+    .question-message {
+      padding: 20px 0;
+      border-top: 1px dashed #ccc;
+      flex-wrap: wrap;
+      &-item {
+        margin-bottom: 10px;
+        flex-grow: 1;
+        label {
+          color: #409EFF;
+          margin-right: 5px;
+          white-space: nowrap;
+        }
+        span {
+          color: #666
+        }
+      }
+    }
 
     .btns {
       margin-top: 20px;
     }
   }
   &-sidebar {
-    position: relative;
     padding: 10px;
     width: 280px;
     height: 100%;
     border-right: 1px solid #eee;
     border-left: 1px solid #eee;
     flex-shrink: 0;
-    // background-color: #eee;
     .side-top {
       width: 100%;
-      height: 150px;
       border-bottom: 1px dashed #ccc;
-    }
-    .side-middle {
-      padding-top: 10px;
-      height: 230px;
-      border-bottom: 1px dashed #ccc;
+      text-align: center;
+      .grade-progress {
+        margin: 10px 0
+      }
     }
     .side-bottom {
       padding-top: 10px;
-    }
-    .operator {
-      .el-button {
-        width: 100%;
-        margin-top: 20px;
-        margin-left: 0;
-      }
-    }
-    .base-message {
       .header-tag {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
       }
+    }
+    .side-middle {
+      padding-top: 10px;
+      height: 200px;
+      border-bottom: 1px dashed #ccc;
+
+    }
+    .performance {
       .line {
         height: 40px;
         line-height: 40px;
         border-radius: 5px;
         background-color: #eee;
         padding-left: 70px;
+        text-align: left;
         color: #666;
         margin-bottom: 10px;
         label {
           font-weight: normal;
           // margin-right: 10px;
         }
-      }
-    }
-    .timer {
-      /* display: flex;
-      align-items: center;
-      justify-content: center; */
-      text-align: center;
-      .time-meter {
-        margin-top: 25px;
       }
     }
     .exam-message {
@@ -604,14 +606,13 @@ export default {
       }
     }
     .question-card {
-      min-height: 200px;
-      .header-tag {
-        margin-bottom: 20px;
+      .card {
+        margin-top: 10px;
       }
     }
     .student-message {
       text-align: center;
-      .avatar {
+      /* .avatar {
         width: 120px;
         height: 120px;
         margin: 20px auto;
@@ -621,7 +622,7 @@ export default {
           width: 100%;
           height: 100%;
         }
-      }
+      } */
       .line {
         line-height: 32px;
         font-size: 16px;

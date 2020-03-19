@@ -122,7 +122,6 @@ export default {
 </script>
 <style lang='scss' scoped>
 .time-meter {
-  line-height: 100px;
   font-size: 40px;
   color: #409EFF;
   font-weight: bold;

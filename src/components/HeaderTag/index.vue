@@ -1,5 +1,5 @@
 <template>
-  <div class="header-tag">
+  <div class="header-tag" :style="{backgroundColor: bgc}">
     <span>{{ text }}</span>
   </div>
 </template>
@@ -14,6 +14,10 @@ export default {
     text: {
       type: String,
       default: '标题'
+    },
+    bgc: {
+      type: String,
+      default: '#fff'
     }
   },
   data() {

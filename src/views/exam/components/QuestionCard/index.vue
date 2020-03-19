@@ -1,6 +1,6 @@
 <template>
   <div class="question-card">
-    <el-tabs :value="activeName" class="question-card-tab" @tab-click="handleClick">
+    <el-tabs :type="type" size="mini" :value="activeName" class="question-card-tab" @tab-click="handleClick">
       <el-tab-pane
         v-for="item in data"
         :key="item.name"
@@ -10,10 +10,11 @@
       >
         <ul class="question-card-list">
           <li
-            v-for="(id,index) in item.ids"
-            :key="id"
-            :class="['question-card-item',{active: id === questionId}]"
-            @click="itemClickHandler(id, index)"
+            v-for="(child,index) in item.items"
+            :key="child.id"
+            :class="['question-card-item',{active: child.id === questionId}]"
+            :style="{backgroundColor: child.bgc || ''}"
+            @click="itemClickHandler(child.id, index)"
           >
             {{ index + 1 }}
           </li>
@@ -31,7 +32,7 @@ export default {
   components: {},
   props: {
     // { 0: [], 1: [], 2: [], 3: [] }
-    // [{name: xxx, label: xxx, ids: []}]
+    // [{name: xxx, label: xxx, items: [{id: xxx, bgc: xxx}]}]
     data: {
       type: Array,
       required: true
@@ -43,6 +44,10 @@ export default {
     questionId: {
       type: Number,
       required: true
+    },
+    type: {
+      type: String,
+      default: ''
     }
   },
   data() {

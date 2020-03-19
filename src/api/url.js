@@ -35,3 +35,4 @@ export const GET_EXAM_URL = '/student/examinationTask/getById' // 根据id查询
 // 学生测试管理
 export const START_EXAM_URL = '/student/studentExaminationTask/startExaminationTask' // 开始测试
 export const SAVE_EXAM_URL = '/student/studentExaminationTask/submitResult' // 保存/提交测试结果
+export const GET_EXAM_PAGE_URL = '/student/studentExaminationTask/pageList' // 分页查询测试结果明细

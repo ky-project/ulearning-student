@@ -7,7 +7,7 @@
       :percentage="percentage"
       :color="color"
     />
-    <span class="grade-progress-text" :style="{color: color}">{{ percentage }}</span>
+    <span class="grade-progress-text" :style="{color: color}">{{ score }}</span>
     <span class="grade-progress-title">分数</span>
   </div>
 </template>
@@ -22,6 +22,10 @@ export default {
     percentage: {
       type: Number,
       default: 0
+    },
+    score: {
+      type: Number,
+      required: true
     }
   },
   data() {
@@ -63,6 +67,7 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -60%);
+    white-space: nowrap;
     font-family: Tahoma, Geneva, sans-serif;
     font-weight: bold;
     font-size: 50px;
