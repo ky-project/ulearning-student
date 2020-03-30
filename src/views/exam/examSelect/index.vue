@@ -164,9 +164,17 @@ export default {
 </script>
 <style lang='scss' scoped>
 .exam-select {
+  height: 100%;
   position: relative;
   &-bg {
-    position: absolute;
+    height: 100%;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      vertical-align: bottom;
+    }
+    /* position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
@@ -175,7 +183,7 @@ export default {
     z-index: -1;
     img {
       height: 100%;
-    }
+    } */
   }
   &-form {
     position: absolute;

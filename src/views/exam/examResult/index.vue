@@ -149,6 +149,7 @@ export default {
     } */
   },
   created() {
+    console.log('created')
     this.getTaskArray()
       .then(response => {
         this.teachingTask = response.data
@@ -163,6 +164,16 @@ export default {
       'resetExamDetail': 'examDetail/RESET_EXAM_DETAIL',
       'setExamDetail': 'examDetail/SET_EXAM_DETAIL'
     }),
+    initial() {
+      // 4. 设置答案
+      this.setQuestionAnswerDtoList(this.examDetail.courseQuestion)
+      // 7. 初始化题卡
+      if (this.cardData.length) {
+        this.activeName = this.cardData[0].name
+        this.questionId = this.cardData[0].items[0].id
+        this.questionType = this.activeName
+      }
+    },
     // 获取教学任务数组
     getTaskArray() {
       return new Promise((resolve, reject) => {
@@ -177,14 +188,16 @@ export default {
       })
     },
     examDetail(row) {
-      // 1. 清空
-      this.resetExamDetail()
-      // 2. 设置
-      this.setExamDetail(row)
-      // 3. 跳转
-      this.$router.push('/exam/exam-detail')
+      if (row.examinationShowResult) {
+        // 1. 清空
+        this.resetExamDetail()
+        // 2. 设置
+        this.setExamDetail(row)
+        // 3. 跳转
+        this.$router.push('/exam/exam-detail')
+      }
     },
-    selectCourse(id) {
+    /* selectCourse(id) {
       axiosPost(SELECT_COURSE, { teachingTaskId: id })
         .then(response => {
           this.$message.success('选课成功')
@@ -203,7 +216,7 @@ export default {
         .catch(error => {
           this.$message.error(error.message || '出错')
         })
-    },
+    }, */
     handleChange() {
       this.state = this.state === 0 ? 1 : 0
       this.resetListQuery()

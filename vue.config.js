@@ -32,8 +32,18 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   transpileDependencies: ['vue-echarts', 'resize-detector', 'vuex-persist'],
+  /*
+    devServer: {
+      proxy: {
+        'api': {
+          target: 'http://localhost:8081',
+          pathRewrite: {'^/api': ''}
+        }
+      }
+    }
+  */
   devServer: {
-    // host: '192.168.1.3',
+    // host: '192.168.43.11',
     port: port,
     open: true,
     overlay: {

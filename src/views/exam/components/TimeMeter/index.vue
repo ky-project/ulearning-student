@@ -42,7 +42,13 @@ export default {
           this.close()
         }
         if (!oldValue && value) {
-          this.start()
+          if (this.timerId) {
+            this.close()
+          } else {
+            console.log(oldValue, value)
+            console.log('开启定时器')
+            this.start()
+          }
         }
       },
       immediate: true

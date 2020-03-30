@@ -29,7 +29,6 @@
         </el-dropdown-menu>
       </el-dropdown>
     </template>
-
   </div>
 </template>
 
@@ -55,11 +54,6 @@ export default {
 </script>
 <style lang='scss' scoped>
 .tabbar {
-  right: 0;
-  bottom: 0px;
-  left: 0;
-  position: fixed;
-  z-index: 1;
   border-top: 1px solid #eee;
   box-shadow: 0 1px 4px rgba(0,21,41,0.08);
   // margin-bottom: 50px;

@@ -16,7 +16,7 @@
       <el-scrollbar :style="{height: '100%'}">
         <div class="exam-mission-main-inner">
           <h3 class="header">{{ examinationTask.examinationName }}</h3>
-          <h4 class="title">一、{{ typeMap[questionType] }}</h4>
+          <h4 class="title">{{ questionSort + '、' + typeMap[questionType] }}</h4>
           <p class="question-title">
             {{ `${orderNumber}. ${currentQuestion.questionText}` }}
           </p>
@@ -116,10 +116,11 @@ export default {
       ],
       result: '', // 临时存储单选，多选，判断结果
       autoSaveTrigger: 0,
-      // 弹窗相关
-      visible: false,
-      // 加载
-      loading: false
+      visible: false, // 弹窗相关
+      loading: false, // 加载
+      cheatCount: 0, // 作弊次数
+      isScreenfull: false, // 是否全屏
+      questionSort: '一'
     }
   },
 
@@ -187,6 +188,8 @@ export default {
             this.result = this.questionAnswerDtoList[index].studentAnswer || ''
           }
         }
+        // 更新大题序号
+        this.getQuestionSort()
       },
       immediate: true
     }
@@ -195,10 +198,30 @@ export default {
   beforeMount() {},
 
   created() {
+    console.log('created')
     this.initial()
   },
 
-  mounted() {},
+  beforeRouteLeave(to, from, next) {
+    // 离开弹窗
+    if (this.isSubmit === false) {
+      this.leave()
+      return
+    }
+    next()
+  },
+
+  mounted() {
+    document.addEventListener('visibilitychange', this.cheatHandler)
+    // window.addEventListener('blur', this.cutScreenHandler)
+    // document.addEventListener('keydown', this.cutScreenHandler)
+  },
+
+  beforeDestroy() {
+    document.removeEventListener('visibilitychange', this.cheatHandler)
+    // window.removeEventListener('blur', this.cutScreenHandler)
+    // document.addEventListener('keydown', this.cutScreenHandler)
+  },
 
   methods: {
     /* // 打开
@@ -222,25 +245,75 @@ export default {
         this.$router.push('/exam/exam-select')
       })
     }, */
+    // 获取大题序列
+    getQuestionSort() {
+      const courseQuestion = this.exam
+      const typeOrders = Object.keys(courseQuestion).filter(key => courseQuestion[key].length !== 0)
+      const index = typeOrders.findIndex(item => item === this.activeName)
+      const orderMap = ['一', '二', '三', '四']
+      this.questionSort = orderMap[index]
+    },
+    // 作弊处理
+    cheatHandler() {
+      const state = document.visibilityState
+      if (state === 'hidden') {
+        this.cheatCount++
+        if (this.cheatCount <= 3) {
+          this.$message.warning(`检测到你第${this.cheatCount}次切换页面，超过3次将影响你的成绩`)
+        } else {
+          this.submit()
+        }
+      }
+    },
+    // 切屏处理
+    cutScreenHandler(e) {
+      /* console.log(e.keyCode)
+      if (e.altKey && e.keyCode === 9) {
+        console.log('你按下了alt + tab')
+        this.cheatCount++
+        if (this.cheatCount <= 3) {
+          this.$message.warning(`检测到你第${this.cheatCount}次切换页面，超过3次将影响你的成绩`)
+        } else {
+          console.log('试卷提交中')
+        }
+      } */
+    },
+    // 提示弹窗
+    leave() {
+      this.$confirm('确定离开本场考试，离开后将自动提交，是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.submit()
+      }).catch(() => {
+        console.log('取消')
+      })
+    },
     // 保存
     save() {
       return new Promise(resolve => {
         // 格式化
-        this.questionAnswerDtoList.forEach(question => {
-          if (question.studentAnswer instanceof Array) {
-            question.studentAnswer = question.studentAnswer.join('|#|')
-          }
-        })
-        const data = {
-          examinationTaskId: this.examinationTaskId,
-          isSubmit: false,
-          questionAnswerDtoList: this.questionAnswerDtoList
-        }
-        this.saveExam(data)
-          .then(response => {
-            this.$message.success('保存成功')
-            resolve()
+        if (this.isSubmit === false) {
+          const tempAnswerList = []
+          this.questionAnswerDtoList.forEach(question => {
+            const item = JSON.parse(JSON.stringify(question))
+            if (question.studentAnswer instanceof Array) {
+              item.studentAnswer = question.studentAnswer.join('|#|')
+            }
+            tempAnswerList.push(item)
           })
+          const data = {
+            examinationTaskId: this.examinationTaskId,
+            isSubmit: false,
+            questionAnswerDtoList: tempAnswerList
+          }
+          this.saveExam(data)
+            .then(response => {
+              this.$message.success('保存成功')
+              resolve()
+            })
+        }
       })
     },
     // 交卷
@@ -252,23 +325,30 @@ export default {
           return false
         } */
       // 格式化
-      /* this.questionAnswerDtoList.forEach(question => {
-        if (question.studentAnswer instanceof Array) {
-          question.studentAnswer = question.studentAnswer.join('|#|')
+      if (this.isSubmit === false) {
+        const tempAnswerList = []
+        this.questionAnswerDtoList.forEach(question => {
+          const item = JSON.parse(JSON.stringify(question))
+          if (question.studentAnswer instanceof Array) {
+            item.studentAnswer = question.studentAnswer.join('|#|')
+          }
+          tempAnswerList.push(item)
+        })
+        const data = {
+          examinationTaskId: this.examinationTaskId,
+          isSubmit: true,
+          questionAnswerDtoList: tempAnswerList
         }
-      })
-      const data = {
-        examinationTaskId: this.examinationTaskId,
-        isSubmit: true,
-        questionAnswerDtoList: this.questionAnswerDtoList
-      }
-      this.saveExam(data)
-        .then(response => {
-          this.$message.success('提交成功')
 
-        }) */
-      this.on = false
-      this.visible = true
+        this.saveExam(data)
+          .then(response => {
+            this.$message.success('提交成功')
+            this.isSubmit = true
+            this.on = false
+
+            this.visible = true
+          })
+      }
     },
     // 更新题目答案
     updateAnswer(value) {
@@ -382,6 +462,7 @@ export default {
     },
     // 初始化试卷
     async initial() {
+      console.log('初始化')
       this.loading = true
       // 1. 获取examinationTaskId
       this.examinationTaskId = this.$route.query.id
@@ -394,7 +475,7 @@ export default {
       // 4. 设置答案
       this.setQuestionAnswerDtoList(this.exam)
       // 5. 设置时间
-      this.examiningRemainTime = response.data.examiningRemainTime * 60
+      this.examiningRemainTime = response.data.examiningRemainTime
       // 6. 设置题卡
       this.setDataCard(this.exam)
       // 7. 初始化题卡
@@ -403,7 +484,18 @@ export default {
         this.questionId = this.cardData[0].items[0].id
         this.questionType = this.activeName
       }
-      // 8. 开始测试
+      // 8. 全屏
+      this.isScreenfull = true
+      // 9. 禁用esc
+      /* this.$refs.examMission.addEventListener('keydown', function(e) {
+        const charCode = e.charCode || e.keyCode || e.which
+        if (charCode == 27) {
+          console.log('esc')
+          this.$message.warning('禁用esc退出全屏')
+          return false
+        }
+      }) */
+      // 9. 开始测试
       this.on = true
       this.loading = false
     },
@@ -489,12 +581,12 @@ export default {
     // 剩余时间
     restTime(now) {
       this.autoSaveTrigger++
+      console.log(this.autoSaveTrigger)
       // 每5分钟自动保存
       if (this.autoSaveTrigger === 20) {
+        console.log('我被调用了')
+        this.autoSaveTrigger = 0
         this.save()
-          .then(() => {
-            this.autoSaveTrigger = 0
-          })
       }
     }
   }
@@ -504,6 +596,7 @@ export default {
 <style lang='scss' scoped>
 .exam-mission {
   height: 100%;
+  background-color: #fff;
   &-main {
     &-inner {
       padding: 20px;

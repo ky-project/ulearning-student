@@ -1,8 +1,13 @@
 <template>
   <div class="accuracy">
-    <div v-for="item in data" :key="item.label" class="line">
+    <div v-for="item in data" :key="item.label" class="line flex">
       <label>{{ item.label }}</label>
-      <el-progress :percentage="item.percentage" :color="customColorMethod" />
+      <el-progress
+        :text-inside="true"
+        :stroke-width="20"
+        :percentage="item.percentage"
+        :color="customColorMethod"
+      />
     </div>
   </div>
 </template>
@@ -51,9 +56,16 @@ export default {
 </script>
 <style lang='scss' scoped>
 .accuracy {
+  .line {
+    margin-top: 20px;
+  }
   label {
+    width: 50px;
     font-weight: normal;
     color: #333;
+  }
+  .el-progress {
+    flex: 1;
   }
 }
 </style>

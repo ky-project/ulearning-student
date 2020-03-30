@@ -3,6 +3,7 @@ import Vue from 'vue'
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
+import screenfull from 'screenfull'
 import 'element-ui/lib/theme-chalk/index.css'
 // import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
@@ -61,6 +62,36 @@ Vue.directive('wh', {
     el.style[wh] = value
   }
 })
+// 全屏
+/* Vue.directive('screenfull', {
+  update: (el, binding) => {
+    const { value, oldValue } = binding
+    if (!oldValue && value) {
+      // 全屏
+      if (screenfull.isEnabled) {
+        screenfull.request(el)
+      }
+    } else if (oldValue && !value) {
+      // 取消全屏
+      if (screenfull.isEnabled) {
+        screenfull.exit(el)
+      }
+    }
+  }
+}) */
+// 禁用esc退出全屏
+/* Vue.directive('noesc', {
+  bind: (el, binding) => {
+    el.addEventListener('keydown', function(e) {
+      const charCode = e.charCode || e.keyCode || e.which
+      if (charCode == 27) {
+        console.log('esc')
+        this.$message.warning('禁用esc退出全屏')
+        return false
+      }
+    })
+  }
+}) */
 new Vue({
   el: '#app',
   router,

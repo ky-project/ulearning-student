@@ -25,7 +25,7 @@
         <svg-icon icon-class="gonggao" class="icon" @click="$router.push('/notice/notice-list')" />
       </div>
       <div class="avatar" @click.stop="uploadHeadImg">
-        <img :src="userInfo.teaPhoto ? userInfo.teaPhoto : teaPhoto" alt="">
+        <img :src="userInfo.stuPhoto ? userInfo.stuPhoto : stuPhoto" alt="">
       </div>
       <input type="file" accept="image/*" class="hiddenInput" @change="handleFile">
       <el-dropdown trigger="click" class="dropdown">
@@ -64,7 +64,7 @@ export default {
   },
   data() {
     return {
-      teaPhoto: defaultAvatar
+      stuPhoto: defaultAvatar
     }
   },
   computed: {

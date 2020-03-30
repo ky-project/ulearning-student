@@ -3,11 +3,13 @@
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar v-desktop class="sidebar-container" />
     <div class="main-container">
-      <div :class="{'fixed-header':fixedHeader}">
+      <div class="fixed-header">
         <navbar />
       </div>
-      <app-main />
-      <tabbar v-mobile :data="data" />
+      <app-main :height="mainHeight" />
+      <div v-mobile class="fixed-bottom">
+        <tabbar :data="data" />
+      </div>
     </div>
   </div>
 </template>
@@ -27,6 +29,7 @@ export default {
   mixins: [ResizeMixin],
   data: function() {
     return {
+      mainHeight: this.$store.state.app.device === 'desktop' ? 'calc(100vh - 50px)' : 'calc(100vh - 105px)',
       data: [
         { icon: 'xuanke', label: '选课', path: '/select-course/index' },
         { icon: 'kaoshi', label: '测试', path: '/select-course/index2' },
@@ -45,9 +48,9 @@ export default {
     device() {
       return this.$store.state.app.device
     },
-    fixedHeader() {
+    /* fixedHeader() {
       return this.$store.state.settings.fixedHeader
-    },
+    }, */
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
@@ -79,6 +82,11 @@ export default {
       top: 0;
     }
   }
+
+  .main-container {
+    padding-top: 50px;
+  }
+
   .drawer-bg {
     background: #000;
     opacity: 0.3;
@@ -96,6 +104,14 @@ export default {
     z-index: 9;
     width: calc(100% - #{$sideBarWidth});
     transition: width 0.28s;
+  }
+
+  .fixed-bottom {
+    right: 0;
+    bottom: 0px;
+    left: 0;
+    position: fixed;
+    z-index: 9;
   }
 
   .hideSidebar .fixed-header {

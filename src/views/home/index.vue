@@ -42,9 +42,11 @@ export default {
 .home {
   height: 100%;
   .bg {
-    object-fit: fill;
+    vertical-align: bottom;
+    object-fit: cover;
+    width: 100%;
     height: 100%;
-    filter: blur(5px)
+    filter: blur(5px);
   }
   .welcome {
     text-align: center;

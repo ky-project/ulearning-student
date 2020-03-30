@@ -1,6 +1,6 @@
 <template>
-  <div class="exam-mission flex">
-    <div class="exam-mission-sidebar">
+  <div class="exam-detail flex">
+    <div class="exam-detail-sidebar">
       <header-tag text="题卡" />
       <QuestionCard
         class="card"
@@ -10,9 +10,9 @@
         @update="selectQuestion"
       />
     </div>
-    <div class="top exam-mission-main">
+    <div class="top exam-detail-main">
       <el-scrollbar :style="{height: '100%'}">
-        <div class="exam-mission-main-inner">
+        <div class="exam-detail-main-inner">
           <h3 class="header">{{ examDetail.examinationName }}</h3>
           <h4 class="title">{{ questionSort + '、' + typeMap[questionType] }}</h4>
           <p class="question-title">
@@ -39,7 +39,7 @@
             </div>
             <div class="question-message-item">
               <label>【难度】</label>
-              <span>{{ currentQuestion.questionDifficulty }}</span>
+              <span>{{ difficultyMap[currentQuestion.questionDifficulty] }}</span>
             </div>
             <div class="question-message-item">
               <label>【答案】</label>
@@ -57,7 +57,7 @@
         </div>
       </el-scrollbar>
     </div>
-    <div class="exam-mission-sidebar">
+    <div class="exam-detail-sidebar">
       <!--
       totalScore: 0,
       stuTotalScore: 0,
@@ -101,7 +101,7 @@ import GradeProgress from '@/views/experiment/components/GradeProgress'
 import { mapGetters } from 'vuex'
 import { GET_EXAM_URL } from '@/api/url'
 import { axiosGet } from '@/utils/axios'
-import { typeMap } from './../config.js'
+import { typeMap, difficultyMap } from './../config.js'
 export default {
   name: 'ExamMission',
 
@@ -123,6 +123,7 @@ export default {
         { label: '判断题', percentage: 80 }
       ],
       typeMap: typeMap,
+      difficultyMap: difficultyMap,
       /* cardData: [
         {
           name: '0',
@@ -207,7 +208,7 @@ export default {
             courseQuestion[key].forEach(item => {
               let bgc = ''
               if (item.studentScore < item.grade) {
-                bgc = 'red'
+                bgc = '#F56C6C'
               }
               obj.items.push({ id: item.id, bgc })
             })
@@ -500,7 +501,7 @@ export default {
 
 </script>
 <style lang='scss' scoped>
-.exam-mission {
+.exam-detail {
   height: 100%;
   &-main {
     &-inner {
@@ -573,7 +574,6 @@ export default {
       padding-top: 10px;
       height: 200px;
       border-bottom: 1px dashed #ccc;
-
     }
     .performance {
       .line {
@@ -612,17 +612,6 @@ export default {
     }
     .student-message {
       text-align: center;
-      /* .avatar {
-        width: 120px;
-        height: 120px;
-        margin: 20px auto;
-        border-radius: 5px;
-        overflow: hidden;
-        img {
-          width: 100%;
-          height: 100%;
-        }
-      } */
       .line {
         line-height: 32px;
         font-size: 16px;

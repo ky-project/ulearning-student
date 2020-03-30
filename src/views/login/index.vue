@@ -120,7 +120,7 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', { ...this.loginForm, uuid: this.code.uuid }).then(() => {
+          this.$store.dispatch('user/login', { ...this.loginForm, uuid: this.code.uuid, loginType: 3 }).then(() => {
             this.$router.push({ path: '/' })
             this.loading = false
           }).catch(() => {
