@@ -147,14 +147,14 @@ export const constantRoutes = [
         name: 'ExamDetail',
         hidden: true,
         component: () => import('@/views/exam/examDetail'),
-        meta: { title: '测试明细' }
+        meta: { title: '测试明细', mobile: { hiddenTabbar: true }}
       },
       {
         path: 'exam-mission',
         name: 'ExamMission',
         hidden: true,
         component: () => import('@/views/exam/examMission'),
-        meta: { title: '测试任务' }
+        meta: { title: '测试任务', mobile: { hiddenTabbar: true }}
       }
     ]
   },

@@ -1,22 +1,22 @@
 <template>
-  <section class="app-main">
-    <!-- <transition v-desktop name="fade-transform" mode="out-in">
+  <section class="app-main" :style="{height: height}">
+    <transition v-desktop name="fade-transform" mode="out-in">
       <router-view :key="key" />
-    </transition> -->
+    </transition>
     <!-- 电脑端 -->
-    <div v-if="$store.getters.device === 'desktop'" :style="{height: height}">
+    <!-- <div v-if="$store.getters.device === 'desktop'" :style="{height: height}">
       <transition v-desktop name="fade-transform" mode="out-in">
         <router-view :key="key" />
       </transition>
-    </div>
+    </div> -->
     <!-- 手机端，带滚动条 -->
-    <div v-else :style="{height: height}">
+    <!-- <div v-else :style="{height: height}">
       <transition name="fade-transform" mode="out-in">
         <el-scrollbar :style="{height: '100%'}">
           <router-view :key="key" />
         </el-scrollbar>
       </transition>
-    </div>
+    </div> -->
   </section>
 </template>
 

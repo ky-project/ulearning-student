@@ -45,8 +45,8 @@ export default {
           if (this.timerId) {
             this.close()
           } else {
-            console.log(oldValue, value)
-            console.log('开启定时器')
+            // console.log(oldValue, value)
+            // console.log('开启定时器')
             this.start()
           }
         }
@@ -134,6 +134,15 @@ export default {
   .icon--time {
     font-size: 40px;
     color: #409EFF;
+  }
+}
+@media screen and (max-width: 991px) {
+  .time-meter {
+    font-size: 16px;
+    font-weight: normal;
+    .icon--time {
+      font-size: 16px;
+    }
   }
 }
 </style>

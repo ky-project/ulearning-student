@@ -1,76 +1,109 @@
 <template>
-  <div v-loading="loading" class="exam-mission flex">
-    <div class="exam-mission-sidebar">
-      <div class="question-card side-bottom">
-        <header-tag text="题卡" />
-        <question-card
-          class="card"
-          :data="cardData"
-          :active-name.sync="activeName"
-          :question-id="questionId"
-          @update="selectQuestion"
-        />
-      </div>
-    </div>
-    <div class="top exam-mission-main">
-      <el-scrollbar :style="{height: '100%'}">
-        <div class="exam-mission-main-inner">
-          <h3 class="header">{{ examinationTask.examinationName }}</h3>
-          <h4 class="title">{{ questionSort + '、' + typeMap[questionType] }}</h4>
-          <p class="question-title">
-            {{ `${orderNumber}. ${currentQuestion.questionText}` }}
-          </p>
-          <div class="question-img">
-            <img :src="currentQuestion.questionUrl" alt="">
-          </div>
-          <!-- 非填空题 -->
-          <choice-question
-            v-if="questionType !== '4'"
-            :question-option="questionOption"
-            :value="result"
-            :multiple="questionType === '3'"
-            :show-value="questionType !== '2'"
-            @change="updateAnswer"
+  <div v-loading="loading" class="exam-mission">
+    <div v-if="$store.getters.device === 'desktop'" class="flex">
+      <div class="exam-mission-sidebar">
+        <div class="question-card side-bottom">
+          <header-tag text="题卡" />
+          <question-card
+            class="card"
+            :data="cardData"
+            :active-name.sync="activeName"
+            :question-id="questionId"
+            @update="selectQuestion"
           />
-          <!-- 填空题 -->
-          <completion-question v-else :answer-list="result" @change="updateAnswer" />
-          <div class="btns flex justify-end">
-            <el-button @click="prev">上一题</el-button>
-            <el-button type="primary" @click="next">下一题</el-button>
+        </div>
+      </div>
+      <div class="top exam-mission-main">
+        <el-scrollbar :style="{height: '100%'}">
+          <div class="exam-mission-main-inner">
+            <h3 class="header">{{ examinationTask.examinationName }}</h3>
+            <h4 class="title">{{ questionSort + '、' + typeMap[questionType] }}</h4>
+            <p class="question-title">
+              {{ `${orderNumber}. ${currentQuestion.questionText}` }}
+            </p>
+            <div class="question-img">
+              <img :src="currentQuestion.questionUrl" alt="">
+            </div>
+            <choice-question
+              v-if="questionType !== '4'"
+              :question-option="questionOption"
+              :value="result"
+              :multiple="questionType === '3'"
+              :show-value="questionType !== '2'"
+              @change="updateAnswer"
+            />
+            <completion-question v-else :answer-list="result" @change="updateAnswer" />
+            <div v-desktop class="btns flex justify-end">
+              <el-button @click="prev">上一题</el-button>
+              <el-button type="primary" @click="next">下一题</el-button>
+            </div>
+          </div>
+        </el-scrollbar>
+      </div>
+      <div class="exam-mission-sidebar">
+        <div class="exam-message side-top">
+          <div class="timer side-top">
+            <header-tag text="剩余时间" />
+            <time-meter :time="examiningRemainTime" :on="on" @end="submit" @now="restTime" />
           </div>
         </div>
-      </el-scrollbar>
+        <div class="base-message side-middle">
+          <header-tag text="基本信息" />
+          <div class="line">
+            <label>姓名：</label>
+            <span>张三</span>
+          </div>
+          <div class="line">
+            <label>性别：</label>
+            <span>男</span>
+          </div>
+          <div class="line">
+            <label>系别：</label>
+            <span>机电系</span>
+          </div>
+        </div>
+        <div class="operator side-bottom">
+          <header-tag text="操作" />
+          <el-button @click="save">保存</el-button><el-button type="primary" @click="submit">交卷</el-button>
+        </div>
+      </div>
     </div>
-    <div class="exam-mission-sidebar">
-      <div class="exam-message side-top">
-        <!-- <header-tag text="测试任务" /> -->
-        <!-- <div class="task">
-          <svg-icon icon-class="kaoshi" class="icon--task" />
-          {{ examinationTask.examinationName }}
-        </div> -->
-        <div class="timer side-top">
-          <header-tag text="剩余时间" />
+    <!-- 手机端 -->
+    <div v-else>
+      <div class="exam-mission-container">
+        <div class="exam-mission-container__header">
+          <h1>{{ examinationTask.examinationName }}</h1>
           <time-meter :time="examiningRemainTime" :on="on" @end="submit" @now="restTime" />
+          <el-button type="text" size="mini" @click="submit">提交</el-button>
         </div>
-      </div>
-      <div class="base-message side-middle">
-        <header-tag text="基本信息" />
-        <div class="line">
-          <label>姓名：</label>
-          <span>张三</span>
+        <div class="exam-mission-container__question">
+          <el-scrollbar :style="{height: '100%'}">
+            <h4 class="question-type">{{ questionSort + '、' + typeMap[questionType] }}</h4>
+            <p class="question-title">
+              {{ `${orderNumber}. ${currentQuestion.questionText}` }}
+            </p>
+            <div class="question-img">
+              <img :src="currentQuestion.questionUrl" alt="">
+            </div>
+            <choice-question
+              v-if="questionType !== '4'"
+              :question-option="questionOption"
+              :value="result"
+              :multiple="questionType === '3'"
+              :show-value="questionType !== '2'"
+              @change="updateAnswer"
+            />
+            <completion-question v-else :answer-list="result" @change="updateAnswer" />
+            <div v-desktop class="btns flex justify-end">
+              <el-button @click="prev">上一题</el-button>
+              <el-button type="primary" @click="next">下一题</el-button>
+            </div>
+          </el-scrollbar>
         </div>
-        <div class="line">
-          <label>性别：</label>
-          <span>男</span>
+        <div class="exam-mission-bottom">
+          <div class="btn prev" @click="prev">上一题</div>
+          <div class="btn next" @click="next">下一题</div>
         </div>
-        <div class="line">
-          <label>系别：</label>
-          <span>机电系</span>
-        </div>
-      </div>
-      <div class="operator side-bottom">
-        <header-tag text="操作" />
-        <el-button @click="save">保存</el-button><el-button type="primary" @click="submit">交卷</el-button>
       </div>
     </div>
     <!-- 提示弹窗 -->
@@ -198,7 +231,7 @@ export default {
   beforeMount() {},
 
   created() {
-    console.log('created')
+    // console.log('created')
     this.initial()
   },
 
@@ -362,7 +395,7 @@ export default {
     },
     // 保存测试结果
     saveExam(data) {
-      console.log('data', data)
+      // console.log('data', data)
       return new Promise((resolve, reject) => {
         axios2({
           method: 'POST',
@@ -462,7 +495,7 @@ export default {
     },
     // 初始化试卷
     async initial() {
-      console.log('初始化')
+      // console.log('初始化')
       this.loading = true
       // 1. 获取examinationTaskId
       this.examinationTaskId = this.$route.query.id
@@ -530,7 +563,7 @@ export default {
           if ((question.questionType === 3 || question.questionType === 4) && question.studentAnswer) {
             // 多选题和填空题答案拆分为数组
             studentAnswer = question.studentAnswer.split('|#|')
-            console.log('studentAnswer', studentAnswer)
+            // console.log('studentAnswer', studentAnswer)
           }
           const answer = {
             questionId: question.id,
@@ -581,10 +614,8 @@ export default {
     // 剩余时间
     restTime(now) {
       this.autoSaveTrigger++
-      console.log(this.autoSaveTrigger)
       // 每5分钟自动保存
-      if (this.autoSaveTrigger === 20) {
-        console.log('我被调用了')
+      if (this.autoSaveTrigger === 300) {
         this.autoSaveTrigger = 0
         this.save()
       }
@@ -720,6 +751,87 @@ export default {
         font-size: 16px;
         label {
           font-weight: normal;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .exam-mission {
+    padding-bottom: 55px;
+    &-container {
+      &__header {
+        position: relative;
+        line-height: 40px;
+        padding: 0 10px;
+        overflow: hidden;
+        background-color: #eee;
+        h1 {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          display: inline-block;
+          color: #666;
+          font-size: 16px;
+        }
+        .time-meter {
+          float: left;
+        }
+        .el-button {
+          float: right;
+          margin-top: 4px;
+          font-size: 16px;
+        }
+      }
+      &__question {
+        height: calc(100vh - 40px - 55px);
+        padding: 10px 10px 0 10px;
+        color: #666;
+        .question-type {
+          font-size: 16px;
+          font-weight: bold;
+        }
+        .question-title {
+          margin-top: 20px;
+          text-indent: 1em;
+          line-height: 28px;
+        }
+      }
+    }
+    &-bottom {
+      height: 55px;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 999;
+      background-color: #fff;
+      border-top: 1px solid #ccc;
+      padding: 5px;
+      display: flex;
+      .btn {
+        flex-grow: 1;
+        font-size: 16px;
+        text-align: center;
+        line-height: 45px;
+        color: #666;
+        &:active {
+          background-color: #eee;
+        }
+      }
+      .prev {
+        position: relative;
+        &::after {
+          content: '';
+          display: inline-block;
+          width: 1px;
+          height: 100%;
+          position: absolute;
+          right: 0;
+          top: 0;
+          background: #eee;
         }
       }
     }

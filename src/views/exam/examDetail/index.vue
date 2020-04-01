@@ -1,91 +1,164 @@
 <template>
-  <div class="exam-detail flex">
-    <div class="exam-detail-sidebar">
-      <header-tag text="题卡" />
-      <QuestionCard
-        class="card"
-        :data="cardData"
-        :active-name.sync="activeName"
-        :question-id="questionId"
-        @update="selectQuestion"
-      />
-    </div>
-    <div class="top exam-detail-main">
-      <el-scrollbar :style="{height: '100%'}">
-        <div class="exam-detail-main-inner">
-          <h3 class="header">{{ examDetail.examinationName }}</h3>
-          <h4 class="title">{{ questionSort + '、' + typeMap[questionType] }}</h4>
-          <p class="question-title">
-            {{ `${orderNumber}. ${currentQuestion.questionText}` }}
-          </p>
-          <div class="question-img">
-            <img :src="currentQuestion.questionUrl" alt="">
+  <div class="exam-detail">
+    <div v-if="$store.getters.device === 'desktop'" class="flex">
+      <div class="exam-detail-sidebar">
+        <header-tag text="题卡" />
+        <QuestionCard
+          class="card"
+          :data="cardData"
+          :active-name.sync="activeName"
+          :question-id="questionId"
+          @update="selectQuestion"
+        />
+      </div>
+      <div class="top exam-detail-main">
+        <el-scrollbar :style="{height: '100%'}">
+          <div class="exam-detail-main-inner">
+            <h3 class="header">{{ examDetail.examinationName }}</h3>
+            <h4 class="title">{{ questionSort + '、' + typeMap[questionType] }}</h4>
+            <p class="question-title">
+              {{ `${orderNumber}. ${currentQuestion.questionText}` }}
+            </p>
+            <div class="question-img">
+              <img :src="currentQuestion.questionUrl" alt="">
+            </div>
+            <!-- 非填空题 -->
+            <choice-question
+              v-if="questionType !== '4'"
+              :disabled="true"
+              :question-option="questionOption"
+              :value="result"
+              :multiple="questionType === '3'"
+              :show-value="questionType !== '2'"
+            />
+            <!-- 填空题 -->
+            <completion-question v-else :disabled="true" :answer-list="result" />
+            <div class="question-message flex">
+              <div class="question-message-item">
+                <label>【知识点】</label>
+                <span>{{ currentQuestion.questionKnowledge.split('|#|').join(',') }}</span>
+              </div>
+              <div class="question-message-item">
+                <label>【难度】</label>
+                <span>{{ difficultyMap[currentQuestion.questionDifficulty] }}</span>
+              </div>
+              <div class="question-message-item">
+                <label>【答案】</label>
+                <span>{{ currentQuestion.questionKey.split('|#|').join(',') }}</span>
+              </div>
+              <div class="question-message-item">
+                <label>【得分】</label>
+                <span>{{ currentQuestion.studentScore }} 分</span>
+              </div>
+            </div>
+            <div class="btns flex justify-end">
+              <el-button @click="prev">上一题</el-button>
+              <el-button type="primary" @click="next">下一题</el-button>
+            </div>
           </div>
-          <!-- 非填空题 -->
-          <choice-question
-            v-if="questionType !== '4'"
-            :disabled="true"
-            :question-option="questionOption"
-            :value="result"
-            :multiple="questionType === '3'"
-            :show-value="questionType !== '2'"
-          />
-          <!-- 填空题 -->
-          <completion-question v-else :disabled="true" :answer-list="result" />
-          <div class="question-message flex">
-            <div class="question-message-item">
-              <label>【知识点】</label>
-              <span>{{ currentQuestion.questionKnowledge.split('|#|').join(',') }}</span>
-            </div>
-            <div class="question-message-item">
-              <label>【难度】</label>
-              <span>{{ difficultyMap[currentQuestion.questionDifficulty] }}</span>
-            </div>
-            <div class="question-message-item">
-              <label>【答案】</label>
-              <span>{{ currentQuestion.questionKey.split('|#|').join(',') }}</span>
-            </div>
-            <div class="question-message-item">
-              <label>【得分】</label>
-              <span>{{ currentQuestion.studentScore }} 分</span>
-            </div>
+        </el-scrollbar>
+      </div>
+      <div class="exam-detail-sidebar">
+        <div class="side-top performance">
+          <header-tag text="成绩" />
+          <grade-progress :score="examDetail.stuTotalScore" :percentage="scorePercentage" />
+          <div class="line">
+            <label>排名：</label>
+            <span>第 {{ examDetail.ranking }} 名</span>
           </div>
-          <div class="btns flex justify-end">
-            <el-button @click="prev">上一题</el-button>
-            <el-button type="primary" @click="next">下一题</el-button>
+          <div class="line">
+            <label>提交：</label>
+            <span>{{ examDetail.submitNumber }} 人</span>
+          </div>
+          <div class="line">
+            <label>总分：</label>
+            <span>{{ examDetail.totalScore }} 分</span>
           </div>
         </div>
-      </el-scrollbar>
-    </div>
-    <div class="exam-detail-sidebar">
-      <!--
-      totalScore: 0,
-      stuTotalScore: 0,
-      examinationShowResult: false,
-      ranking: 0,
-      submitNumber: 0,
-      examinationName: '',
-      examinationTaskId: 0,
-      examiningStateSwitchTime: '', -->
-      <div class="side-top performance">
-        <header-tag text="成绩" />
-        <grade-progress :score="examDetail.stuTotalScore" :percentage="scorePercentage" />
-        <div class="line">
-          <label>排名：</label>
-          <span>第 {{ examDetail.ranking }} 名</span>
-        </div>
-        <div class="line">
-          <label>提交：</label>
-          <span>{{ examDetail.submitNumber }} 人</span>
-        </div>
-        <div class="line">
-          <label>总分：</label>
-          <span>{{ examDetail.stuTotalScore }} 分</span>
+        <div class="side-bottom">
+          <header-tag text="正确率" />
+          <accuracy :data="accuracyData" />
         </div>
       </div>
-      <div class="side-bottom">
-        <header-tag text="正确率" />
-        <accuracy :data="accuracyData" />
+    </div>
+    <!-- 手机端 -->
+    <div v-else>
+      <div class="exam-detail-container">
+        <div class="exam-detail-container__header">
+          <div class="header-tabs">
+            <span
+              :class="['btn-detail',{active: mobileActive === 'detail'}]"
+              @click="() => {mobileActive = 'detail'}"
+            >详情</span>
+            <span
+              :class="['btn-comment',{active: mobileActive === 'comment'}]"
+              @click="() => {mobileActive = 'comment'}"
+            >总评</span>
+          </div>
+        </div>
+        <div v-if="mobileActive === 'detail'">
+          <div class="exam-detail-container__question">
+            <el-scrollbar :style="{height: '100%'}">
+              <h3 class="exam-title">{{ examDetail.examinationName }}</h3>
+              <h4 class="question-type">{{ questionSort + '、' + typeMap[questionType] }}</h4>
+              <p class="question-title">
+                {{ `${orderNumber}. ${currentQuestion.questionText}` }}
+              </p>
+              <div class="question-img">
+                <img :src="currentQuestion.questionUrl" alt="">
+              </div>
+              <choice-question
+                v-if="questionType !== '4'"
+                :disabled="true"
+                :question-option="questionOption"
+                :value="result"
+                :multiple="questionType === '3'"
+                :show-value="questionType !== '2'"
+              />
+              <completion-question v-else :disabled="true" :answer-list="result" />
+              <div v-desktop class="btns flex justify-end">
+                <el-button @click="prev">上一题</el-button>
+                <el-button type="primary" @click="next">下一题</el-button>
+              </div>
+            </el-scrollbar>
+          </div>
+          <div class="exam-detail-bottom">
+            <div class="btn prev" @click="prev">上一题</div>
+            <div class="btn next" @click="next">下一题</div>
+          </div>
+        </div>
+        <div v-else>
+          <div class="exam-detail-container__comment">
+            <el-scrollbar :style="{height: '100%'}">
+              <el-card>
+                <div slot="header" class="clearfix">
+                  <span>成绩</span>
+                </div>
+                <div class="comment-grade">
+                  <grade-progress :score="examDetail.stuTotalScore" :percentage="scorePercentage" />
+                  <div class="line">
+                    <label>排名：</label>
+                    <span>第 {{ examDetail.ranking }} 名</span>
+                  </div>
+                  <div class="line">
+                    <label>提交：</label>
+                    <span>{{ examDetail.submitNumber }} 人</span>
+                  </div>
+                  <div class="line">
+                    <label>总分：</label>
+                    <span>{{ examDetail.totalScore }} 分</span>
+                  </div>
+                </div>
+              </el-card>
+              <el-card>
+                <div slot="header" class="clearfix">
+                  <span>正确率</span>
+                </div>
+                <accuracy :data="accuracyData" />
+              </el-card>
+            </el-scrollbar>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -103,7 +176,7 @@ import { GET_EXAM_URL } from '@/api/url'
 import { axiosGet } from '@/utils/axios'
 import { typeMap, difficultyMap } from './../config.js'
 export default {
-  name: 'ExamMission',
+  name: 'Examdetail',
 
   components: {
     HeaderTag,
@@ -124,22 +197,6 @@ export default {
       ],
       typeMap: typeMap,
       difficultyMap: difficultyMap,
-      /* cardData: [
-        {
-          name: '0',
-          label: '单选题',
-          ids: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
-        },
-        {
-          name: '1',
-          label: '多选题',
-          ids: [11, 22, 33, 44, 55, 66, 77, 88, 99]
-        }, {
-          name: '2',
-          label: '填空题',
-          ids: [112, 222, 332, 424, 525, 662, 727, 288, 929]
-        }
-      ], */
       activeName: '0',
       questionId: 1,
       orderNumber: 1,
@@ -167,7 +224,8 @@ export default {
         { color: '#1989fa', percentage: 80 },
         { color: '#6f7ad3', percentage: 100 }
       ],
-      questionSort: '一' // 大题序列
+      questionSort: '一', // 大题序列
+      mobileActive: 'detail' // 'detail' or 'comment'
     }
   },
 
@@ -617,6 +675,115 @@ export default {
         font-size: 16px;
         label {
           font-weight: normal;
+        }
+      }
+    }
+  }
+}
+</style>
+<style lang='scss' scoped>
+@media screen and (max-width: 991px) {
+  .exam-detail {
+    padding-bottom: 55px;
+    &-container {
+      &__header {
+        margin: 10px 0;
+        .header-tabs {
+          margin: 0 auto;
+          display: flex;
+          width: 160px;
+          line-height: 30px;
+          height: 30px;
+          border: 1px solid #ccc;
+          border-radius: 15px;
+          overflow: hidden;
+          span {
+            display: block;
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            &.active {
+              background-color: #409EFF;
+              color: #fff;
+            }
+          }
+          .btn-detail {
+            border-right: 1px solid #ccc;
+          }
+        }
+      }
+      &__question {
+        height: calc(100vh - 40px - 55px);
+        padding: 10px 10px 0 10px;
+        color: #666;
+        .exam-title {
+          font-size: 20px;
+          text-align: center;
+          font-weight: bold;
+        }
+        .question-type {
+          font-size: 16px;
+          font-weight: bold;
+        }
+        .question-title {
+          margin-top: 20px;
+          text-indent: 1em;
+          line-height: 28px;
+        }
+      }
+      &__comment {
+        height: calc(100vh - 40px - 55px);
+        .comment-grade {
+          text-align: center;
+        }
+        .line {
+          height: 40px;
+          line-height: 40px;
+          border-radius: 5px;
+          background-color: #eee;
+          text-align: center;
+          color: #666;
+          margin-bottom: 10px;
+          label {
+            font-weight: normal;
+            // margin-right: 10px;
+          }
+        }
+      }
+    }
+    &-bottom {
+      height: 55px;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 999;
+      background-color: #fff;
+      border-top: 1px solid #ccc;
+      padding: 5px;
+      display: flex;
+      .btn {
+        flex-grow: 1;
+        font-size: 16px;
+        text-align: center;
+        line-height: 45px;
+        color: #666;
+        &:active {
+          background-color: #eee;
+        }
+      }
+      .prev {
+        position: relative;
+        &::after {
+          content: '';
+          display: inline-block;
+          width: 1px;
+          height: 100%;
+          position: absolute;
+          right: 0;
+          top: 0;
+          background: #eee;
         }
       }
     }

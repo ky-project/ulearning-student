@@ -3,8 +3,9 @@
     <el-dialog
       title="提示"
       :visible="visible"
-      width="400px"
       :show-close="false"
+      :width="$store.getters.device === 'desktop' ? '400px' : '80%'"
+      class="feedback-dialog"
     >
       <i class="el-icon-info icon" />
       <span class="feedback-text">测试结果将会在{{ seconds }}s内生成，请耐心等待</span>
@@ -84,9 +85,15 @@ export default {
   &-text {
     font-size: 16px;
   }
-  /* &-right {
-    display: flex;
-    justify-content: space-between;
+}
+.customWidth {
+  width: 80% !important;
+}
+@media screen and (max-width: 991px) {
+  /* .feedback {
+    .feedback-dialog {
+      display: none;
+    }
   } */
 }
 </style>

@@ -7,7 +7,7 @@
         <navbar />
       </div>
       <app-main :height="mainHeight" />
-      <div v-mobile class="fixed-bottom">
+      <div v-show="!hiddenTabbar" v-mobile class="fixed-bottom">
         <tabbar :data="data" />
       </div>
     </div>
@@ -29,16 +29,19 @@ export default {
   mixins: [ResizeMixin],
   data: function() {
     return {
-      mainHeight: this.$store.state.app.device === 'desktop' ? 'calc(100vh - 50px)' : 'calc(100vh - 105px)',
       data: [
         { icon: 'xuanke', label: '选课', path: '/select-course/index' },
-        { icon: 'kaoshi', label: '测试', path: '/select-course/index2' },
+        { icon: 'kaoshi', label: '测试', children: [
+          { label: '选择测试', path: '/exam/exam-select' },
+          { label: '测试结果', path: '/exam/exam-result' }
+        ] },
         { icon: 'shiyan', label: '实验', path: '/experiment/experiment-list' },
         { icon: 'ziliao', label: '资源', path: '/select-course/index4', children: [
           { label: '教学资源', path: '/file-manage/resource-manage' },
           { label: '文件资料', path: '/file-manage/document-manage' }
         ] }
-      ]
+      ],
+      hiddenTabbar: false
     }
   },
   computed: {
@@ -47,6 +50,17 @@ export default {
     },
     device() {
       return this.$store.state.app.device
+    },
+    mainHeight() {
+      if (this.device === 'desktop') {
+        return 'calc(100vh - 50px)'
+      } else {
+        if (this.hiddenTabbar) {
+          return 'calc(100vh - 50px)'
+        } else {
+          return 'calc(100vh - 105px)'
+        }
+      }
     },
     /* fixedHeader() {
       return this.$store.state.settings.fixedHeader
@@ -59,6 +73,21 @@ export default {
         mobile: this.device === 'mobile'
       }
     }
+  },
+  watch: {
+    '$route.meta': {
+      handler(newVal, oldVal) {
+      // 前提：手机端
+        if (newVal.mobile && newVal.mobile.hiddenTabbar) {
+        // console.log('meta', newVal.mobile.hiddenTabbar)
+          this.hiddenTabbar = true
+        } else {
+          this.hiddenTabbar = false
+        }
+      },
+      immediate: true
+    }
+
   },
   methods: {
     handleClickOutside() {

@@ -34,6 +34,42 @@
           查询
         </el-button>
       </div>
+      <div v-mobile class="mobile-top flex">
+        <el-select
+          v-model="listQuery.teachingTaskId"
+          placeholder="教学任务"
+          style="width: 120px;"
+          class="filter-item grow"
+          size="mini"
+        >
+          <el-option
+            v-for="item in teachingTask"
+            :key="item.key"
+            :label="item.label"
+            :value="item.key"
+          />
+        </el-select>
+        <el-date-picker
+          v-model="listQuery.submitTime"
+          type="date"
+          placeholder="提交时间"
+          format="yyyy-MM-dd"
+          value-format="yyyy-MM-dd"
+          class="filter-item"
+          style="width: 140px;"
+          size="mini"
+        />
+        <el-button
+          v-waves
+          class="filter-item"
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleFilter"
+        >
+          查询
+        </el-button>
+      </div>
     </div>
     <!-- 表格 -->
     <el-table
@@ -128,7 +164,7 @@ export default {
       teachingTask: '',
       listQuery: {
         currentPage: 1,
-        pageSize: 5,
+        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 5,
         submitTime: '',
         teachingTaskId: ''
       }
@@ -278,6 +314,20 @@ export default {
   }
   .el-select {
     width: 100%;
+  }
+}
+</style>
+<style lang="scss" scoped>
+@media screen and (max-width: '992px'){
+  .filter-container {
+    .filter-item {
+      margin-bottom: 0;
+      margin-right: 5px;
+    }
+    .mobile-top {
+      padding: 10px;
+      background-color: #eee;
+    }
   }
 }
 </style>

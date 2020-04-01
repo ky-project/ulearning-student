@@ -163,33 +163,28 @@ export default {
 
 </script>
 <style lang='scss' scoped>
+/* 电脑端 */
 .exam-select {
-  height: 100%;
+  height: calc(100vh - 50px);
+  overflow: hidden;
   position: relative;
   &-bg {
     height: 100%;
     img {
-      width: 100%;
-      height: 100%;
       object-fit: cover;
-      vertical-align: bottom;
+      object-position: 50% 50%;
     }
-    /* position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    height: calc(100vh - 50px);
-    filter: blur(5px);
-    z-index: -1;
-    img {
-      height: 100%;
-    } */
   }
   &-form {
     position: absolute;
     top: 200px;
     left: 50%;
     transform: translateX(-50%);
+  }
+}
+@media screen and (max-width: 991px) {
+  .exam-select {
+    height: calc(100vh - 105px);
   }
 }
 </style>
