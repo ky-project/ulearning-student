@@ -43,7 +43,7 @@ module.exports = {
     }
   */
   devServer: {
-    host: '192.168.43.11',
+    // host: '192.168.43.11',
     port: port,
     open: true,
     overlay: {

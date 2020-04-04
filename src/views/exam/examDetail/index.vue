@@ -714,7 +714,7 @@ export default {
         }
       }
       &__question {
-        height: calc(100vh - 40px - 55px);
+        height: calc(100vh - 40px - 55px - 50px);
         padding: 10px 10px 0 10px;
         color: #666;
         .exam-title {
