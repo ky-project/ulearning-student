@@ -1,6 +1,6 @@
 <template>
   <div class="app-container personal">
-    <div>
+    <el-scrollbar :style="{height: '100%'}">
       <el-row :gutter="20">
         <el-col :span="6" :xs="24">
           <user-card />
@@ -32,7 +32,7 @@
           </el-card>
         </el-col>
       </el-row>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 

@@ -4,7 +4,7 @@
       <!-- <el-button type="info" size="mini" class="back" @click="back">{{ '<< 返回' }}</el-button> -->
       <div class="experiment-content-block">
         <span>题目内容</span>
-        <el-button class="fr" type="text" @click="back">返回</el-button>
+        <el-button v-desktop class="fr" type="text" @click="back">返回</el-button>
       </div>
       <div class="experiment-content-header">
         <h3 class="title">[实验{{ experiment.experimentOrder }}] {{ experiment.experimentTitle }}</h3>
@@ -70,8 +70,7 @@
 import Tinymce from '@/components/Tinymce'
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import UploadAttachment from '@/components/UploadAttachment'
-import { SUBMIT_EXPERIMENT_RESULT, DOWNLOAD_EXPERIMENT_ATTACHMENT_URL } from '@/api/url.js'
-import { axiosPost } from '@/utils/axios'
+import { DOWNLOAD_EXPERIMENT_ATTACHMENT_URL } from '@/api/url.js'
 export default {
   name: 'ExperimentContent',
 
@@ -81,13 +80,19 @@ export default {
     return {
       isLoading: false,
       device: this.$store.getters.device,
-      toolbar: ['undo redo | fontselect fontsizeselect bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist indent outdent | image table link | hr emoticons'],
       attachment: '' // 附件
     }
   },
 
   computed: {
-    ...mapGetters(['experiment', 'experimentMode', 'experimentResult'])
+    ...mapGetters(['experiment', 'experimentMode', 'experimentResult']),
+    toolbar() {
+      if (this.$store.getters.device === 'desktop') {
+        return ['undo redo | fontselect fontsizeselect bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist indent outdent | image table link | hr emoticons']
+      } else {
+        return [' bold italic underline strikethrough | bullist numlist ']
+      }
+    }
   },
 
   watch: {},
@@ -149,7 +154,9 @@ export default {
     margin-left: 20px;
   } */
   // height: 100px;
-
+  .upload-attachment {
+    flex-grow: 0;
+  }
   &-block {
     line-height: 40px;
     font-size: 16px;

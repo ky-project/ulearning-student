@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading" class="experiment-result">
-    <div class="experiment-result-header">
+    <div v-desktop class="experiment-result-header">
       <desktop-header>
         <template v-slot:left>
           <el-button type="text" @click="back">{{ '< 返回' }}</el-button>
@@ -10,7 +10,7 @@
         </template>
       </desktop-header>
     </div>
-    <div class="experiment-result-container">
+    <div v-desktop class="experiment-result-container">
       <card class="content" width="100%" title="实验内容" :min-body-height="'280px'">
         <template v-slot:body>
           <div v-html="experimentResult.experimentResult" />
@@ -24,20 +24,57 @@
       <card class="result" title="综合评价" width="250px" :min-body-height="'280px'">
         <template v-slot:body>
           <div class="grade">
-            <GradeProgress :percentage="experimentResult.experimentScore" />
+            <GradeProgress
+              :percentage="experimentResult.experimentScore ? experimentResult.experimentScore : 0"
+              :score="experimentResult.experimentScore ? experimentResult.experimentScore : 0"
+            />
           </div>
           <div class="line">
             <label>成绩排名：</label>
-            <span>第 xxx 名</span>
+            <span>第 {{ experimentResult.ranking }} 名</span>
           </div>
           <div class="line">
             <label>提交人数：</label>
-            <span>xxx 人</span>
+            <span>{{ experimentResult.submitNumber }} 人</span>
           </div>
           <div class="line">
             <label>满分：</label>
             <span>100 分</span>
           </div>
+        </template>
+      </card>
+    </div>
+    <div v-mobile class="experiment-result-container mobile">
+      <card class="result" title="综合评价" :min-body-height="'280px'">
+        <template v-slot:body>
+          <div class="grade">
+            <GradeProgress
+              :percentage="experimentResult.experimentScore ? experimentResult.experimentScore : 0"
+              :score="experimentResult.experimentScore ? experimentResult.experimentScore : 0"
+            />
+          </div>
+          <div class="line">
+            <label>成绩排名：</label>
+            <span>第 {{ experimentResult.ranking }} 名</span>
+          </div>
+          <div class="line">
+            <label>提交人数：</label>
+            <span>{{ experimentResult.submitNumber }} 人</span>
+          </div>
+          <div class="line">
+            <label>满分：</label>
+            <span>100 分</span>
+          </div>
+        </template>
+      </card>
+      <card class="content" width="100%" title="实验内容" :min-body-height="'280px'">
+        <template v-slot:body>
+          <div v-html="experimentResult.experimentResult" />
+        </template>
+      </card>
+      <card class="evaluation" width="100%" title="教师反馈" :min-body-height="'120px'">
+        <template v-slot:body>
+          <div v-html="experimentResult.experimentAdvice" />
         </template>
       </card>
     </div>
@@ -84,6 +121,7 @@ export default {
         this.loading = true
         axiosGet(GET_EXPERIMENT_RESULT, { params: { experimentId }})
           .then(response => {
+            console.log('response', response)
             this.loading = false
             this.experimentResult = response.data
             resolve(response)
@@ -109,6 +147,7 @@ export default {
   &-container {
     padding: 20px 290px 0 20px;
     position: relative;
+    background-color: #eee;
     .result {
       position: absolute;
       right: 20px;
@@ -122,6 +161,16 @@ export default {
         label {
           font-weight: normal;
         }
+      }
+    }
+    &.mobile {
+      padding: 20px 0;
+      .result {
+        width: 100% !important;
+        position: static;
+        right: 0;
+        top: 0;
+        text-align: center;
       }
     }
   }

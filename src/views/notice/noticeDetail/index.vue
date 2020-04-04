@@ -1,25 +1,27 @@
 <template>
   <div class="notice-detail">
-    <div class="notice-detail-header">
-      <el-button type="text" class="back" @click="() => {$router.push('/notice/notice-list')}">{{ '< 返回' }}</el-button>
-      <h1 class="title">{{ notice.noticeTitle }}</h1>
-      <div class="message flex justify-center">
-        <div class="key">
-          <label>关键字：</label>
-          <el-tag v-for="key in keyList" :key="key" size="mini">{{ key }}</el-tag>
-        </div>
-        <div class="date">
-          <!-- <label>日期：</label> -->
-          <span>{{ getDate() }}</span>
+    <el-scrollbar :style="{height: '100%'}">
+      <div class="notice-detail-header">
+        <el-button v-desktop type="text" class="back" @click="() => {$router.push('/notice/notice-list')}">{{ '< 返回' }}</el-button>
+        <h1 class="title">{{ notice.noticeTitle }}</h1>
+        <div class="message flex justify-center">
+          <div class="key">
+            <label>关键字：</label>
+            <el-tag v-for="key in keyList" :key="key" size="mini">{{ key }}</el-tag>
+          </div>
+          <div class="date">
+            <!-- <label>日期：</label> -->
+            <span>{{ getDate() }}</span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="notice-detail-main">
-      <div v-html="notice.noticeContent" />
-    </div>
-    <div class="notice-detail-footer flex">
-      <download-box v-for="file in fileList" :key="file.name + file.size + new Date().getTime()" :file="file" />
-    </div>
+      <div class="notice-detail-main">
+        <div v-html="notice.noticeContent" />
+      </div>
+      <div class="notice-detail-footer flex">
+        <download-box v-for="file in fileList" :key="file.name + file.size + new Date().getTime()" :file="file" />
+      </div>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -94,7 +96,7 @@ export default {
     border-bottom: 1px solid #ccc;
     .title {
       text-align: center;
-      font-size: 40px;
+      font-size: 30px;
       font-weight: bold;
       color: #333;
     }
@@ -117,6 +119,16 @@ export default {
   }
   &-footer {
     margin-top: 20px;
+    .download-box {
+      flex-grow: 0;
+    }
+  }
+}
+</style>
+<style lang="scss" scoped>
+@media screen and(max-width: 991px){
+  .notice-detail {
+    padding: 20px 10px 0 10px;
   }
 }
 </style>

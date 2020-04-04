@@ -1,14 +1,77 @@
 <template>
   <div class="app-container notice-list">
-    <!-- 查询 -->
-    <div class="filter-container">
-      <div v-desktop>
+    <div v-desktop>
+      <!-- 查询 -->
+      <div class="filter-container">
+        <div>
+          <el-select
+            v-model="listQuery.teachingTaskId"
+            placeholder="教学任务"
+            style="width: 200px;"
+            class="filter-item"
+            :style="{marginTop: '5px'}"
+          >
+            <el-option
+              v-for="item in teachingTask"
+              :key="item.key"
+              :label="item.label"
+              :value="item.key"
+            />
+          </el-select>
+          <el-date-picker
+            v-model="listQuery.noticePostTime"
+            type="date"
+            placeholder="选择日期"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
+          />
+          <el-button
+            v-waves
+            type="primary"
+            icon="el-icon-search"
+            @click="handleFilter"
+          >
+            查询
+          </el-button>
+        </div>
+      </div>
+      <!-- 列表 -->
+      <div class="notice-list-main">
+        <el-scrollbar :style="{height: '100%'}">
+          <ul v-if="list.length" class="notice-list-main-list">
+            <li
+              v-for="item in list"
+              :key="item.id"
+              class="notice-list-main-item flex justify-between"
+              @click="itemClick(item)"
+            >
+              <h4>{{ item.noticeTitle }}</h4>
+              <span>{{ item.noticePostTime }}</span>
+            </li>
+          </ul>
+          <div v-else class="notice-list-main-empty">暂无通告</div>
+          <!-- 分页器 -->
+          <div v-desktop>
+            <pagination
+              v-show="total>0"
+              :total="total"
+              :page.sync="listQuery.currentPage"
+              :limit.sync="listQuery.pageSize"
+              class="fr"
+              @pagination="setPagination"
+            />
+          </div>
+        </el-scrollbar>
+      </div>
+    </div>
+    <div v-mobile>
+      <div v-mobile class="mobile-top flex">
         <el-select
           v-model="listQuery.teachingTaskId"
           placeholder="教学任务"
-          style="width: 200px;"
-          class="filter-item"
-          :style="{marginTop: '5px'}"
+          style="width: 180px;"
+          class="filter-item grow"
+          size="mini"
         >
           <el-option
             v-for="item in teachingTask"
@@ -23,50 +86,47 @@
           placeholder="选择日期"
           format="yyyy-MM-dd"
           value-format="yyyy-MM-dd"
+          size="mini"
         />
         <el-button
           v-waves
+          class="filter-item"
           type="primary"
           icon="el-icon-search"
+          size="mini"
           @click="handleFilter"
         >
           查询
         </el-button>
       </div>
-      <!-- <MobileTop v-model="listQuery.teachingTaskAlias" v-mobile placeholder="请输入教学别称" @search="getList">
-        <el-button class="btn" type="primary" @click="handleChange">
-          <svg-icon icon-class="qiehuan" />
-          {{ !state ? '已选' : '选课' }}
-        </el-button>
-      </MobileTop> -->
-    </div>
-    <!-- 列表 -->
-    <div class="notice-list-main">
-      <el-scrollbar :style="{height: '100%'}">
-        <ul v-if="list.length" class="notice-list-main-list">
-          <li
-            v-for="item in list"
-            :key="item.id"
-            class="notice-list-main-item flex justify-between"
-            @click="itemClick(item)"
-          >
-            <h4>{{ item.noticeTitle }}</h4>
-            <span>{{ item.noticePostTime }}</span>
-          </li>
-        </ul>
-        <div v-else class="notice-list-main-empty">暂无通告</div>
-        <!-- 分页器 -->
-        <div v-desktop>
-          <pagination
-            v-show="total>0"
-            :total="total"
-            :page.sync="listQuery.currentPage"
-            :limit.sync="listQuery.pageSize"
-            class="fr"
-            @pagination="setPagination"
-          />
-        </div>
-      </el-scrollbar>
+      <!-- 列表 -->
+      <div class="notice-list-main">
+        <el-scrollbar :style="{height: '100%'}">
+          <ul v-if="list.length" class="notice-list-main-list">
+            <li
+              v-for="item in list"
+              :key="item.id"
+              class="notice-list-main-item flex justify-between"
+              @click="itemClick(item)"
+            >
+              <h4>{{ item.noticeTitle }}</h4>
+              <span>{{ item.noticePostTime }}</span>
+            </li>
+          </ul>
+          <div v-else class="notice-list-main-empty">暂无通告</div>
+          <!-- 分页器 -->
+          <div v-desktop>
+            <pagination
+              v-show="total>0"
+              :total="total"
+              :page.sync="listQuery.currentPage"
+              :limit.sync="listQuery.pageSize"
+              class="fr"
+              @pagination="setPagination"
+            />
+          </div>
+        </el-scrollbar>
+      </div>
     </div>
 
   </div>
@@ -209,7 +269,7 @@ export default {
       h4 {
         position: relative;
         color: #666;
-        padding-left: 20px;
+        padding-left: 30px;
         font-size: 16px;
         &::before {
           content: '';
@@ -221,13 +281,37 @@ export default {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background-color: red;
+          background-color: #F56C6C;
         }
       }
       span {
         font-size: 14px;
         margin-right: 20px;
         color: #666;
+      }
+    }
+  }
+}
+</style>
+<style lang="scss" scoped>
+@media screen and (max-width: 991px) {
+  .notice-list {
+    padding: 0;
+    .mobile-top {
+      padding: 10px;
+      background-color: #eee;
+      .el-input {
+        margin: 0 5px;
+      }
+    }
+    &-main {
+      &-item {
+        h4 {
+          width: 180px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       }
     }
   }
