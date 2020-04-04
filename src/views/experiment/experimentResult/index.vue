@@ -76,6 +76,9 @@
     </div>
     <div v-mobile class="experiment-result-container mobile">
       <card class="result" title="综合评价" :min-body-height="'280px'">
+        <template v-slot:btn>
+          <span>姓名：{{ experimentResult.stuName }}</span>
+        </template>
         <template v-slot:body>
           <div class="grade">
             <GradeProgress
@@ -105,6 +108,33 @@
       <card class="evaluation" width="100%" title="教师反馈" :min-body-height="'200px'">
         <template v-slot:body>
           <div v-html="experimentResult.experimentAdvice" />
+        </template>
+      </card>
+      <card class="excellent" title="优秀作品" width="100%" :min-body-height="'200px'">
+        <template v-slot:btn>
+          <el-switch
+            :value="seeSelf"
+            active-text="只看自己"
+            @change="changeSeeSelf"
+          />
+        </template>
+        <template v-slot:body>
+          <div class="excellent-title">
+            <span class="excellent-title__name">姓名</span>
+            <span class="excellent-title__grade">成绩</span>
+          </div>
+          <div class="excellent-list">
+            <el-scrollbar :style="{height:'100%'}">
+              <!-- { stuName: '张三', experimentScore: '93', stuId: '1' }, -->
+              <excellent-item
+                v-for="item in excellentList"
+                :key="item.stuId"
+                :name="item.stuName"
+                :grade="item.experimentScore"
+                @click="() => loadExcellentExperiment(item.id)"
+              />
+            </el-scrollbar>
+          </div>
         </template>
       </card>
     </div>
@@ -298,7 +328,7 @@ export default {
     }
     &.mobile {
       padding: 20px 0;
-      .result {
+      .result, .excellent {
         width: 100% !important;
         position: static;
         right: 0;
