@@ -38,3 +38,7 @@ export const GET_EXAM_URL = '/student/examinationTask/getById' // 根据id查询
 export const START_EXAM_URL = '/student/studentExaminationTask/startExaminationTask' // 开始测试
 export const SAVE_EXAM_URL = '/student/studentExaminationTask/submitResult' // 保存/提交测试结果
 export const GET_EXAM_PAGE_URL = '/student/studentExaminationTask/pageList' // 分页查询测试结果明细
+// 主页接口
+export const PAGE_ACTIVITY_LIST_URL = '/student/index/pageActivityList' // 分页查询教师动态
+export const GET_EXPERIMENT_NUMBER_URL = '/student/index/getExperimentNumber' // 查询未完成的实验数量
+export const GET_EXAMINATION_NUMBER_URL = '/student/index/getExaminationNumber' // 查询未完成的测试数量

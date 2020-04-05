@@ -26,7 +26,7 @@ module.exports = {
    * In most cases please use '/' !!!
    * Detail: https://cli.vuejs.org/config/#publicpath
    */
-  publicPath: '/',
+  publicPath: '/ulearning/student/',
   outputDir: 'dist',
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
@@ -45,7 +45,7 @@ module.exports = {
   devServer: {
     // host: '192.168.43.11',
     port: port,
-    open: true,
+    open: false,
     overlay: {
       warnings: false,
       errors: true
