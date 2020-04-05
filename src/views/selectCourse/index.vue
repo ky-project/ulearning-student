@@ -7,12 +7,15 @@
           v-model="listQuery.teachingTaskAlias"
           placeholder="教学任务别称"
           style="width: 200px;"
+          size="small"
           class="filter-item"
         />
         <el-button
           v-waves
           class="filter-item"
           type="primary"
+          size="small"
+          round
           icon="el-icon-search"
           @click="handleFilter"
         >
@@ -21,13 +24,15 @@
         <el-button
           class="filter-item fr"
           type="primary"
+          size="small"
+          round
           @click="handleChange"
         >
           {{ !state ? '已选' : '选课' }}
         </el-button>
       </div>
       <MobileTop v-model="listQuery.teachingTaskAlias" v-mobile placeholder="请输入教学别称" @search="getList">
-        <el-button class="btn" type="primary" @click="handleChange">
+        <el-button class="btn" round type="primary" @click="handleChange">
           <svg-icon icon-class="qiehuan" />
           {{ !state ? '已选' : '选课' }}
         </el-button>
@@ -40,10 +45,18 @@
       :data="list"
       border
       fit
+      size="small"
       highlight-current-row
       :height="tableHeight"
       style="width: 100%;"
     >
+      <el-table-column
+        label="序号"
+        type="index"
+        align="center"
+        width="50"
+        :index="indexMethod"
+      />
       <el-table-column label="教学任务别称" align="center" width="120" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.teachingTaskAlias }}</span>
@@ -96,6 +109,7 @@
       <pagination
         v-show="total>0"
         :total="total"
+        :page-sizes="[8, 16, 32, 64]"
         :page.sync="listQuery.currentPage"
         :limit.sync="listQuery.pageSize"
         class="fr"
@@ -132,7 +146,7 @@ export default {
       state: 0, // 0-未选, 1-已选
       listQuery: {
         currentPage: 1,
-        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 5,
+        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 8,
         teachingTaskAlias: ''
       }
     }
@@ -205,6 +219,9 @@ export default {
     handleFilter() {
       this.listQuery.currentPage = 1
       this.getList()
+    },
+    indexMethod(index) {
+      return (index + 1) + (this.listQuery.currentPage - 1) * this.listQuery.pageSize
     }
     /* resetTemp() {
       this.temp = {

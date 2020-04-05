@@ -7,6 +7,7 @@
           :value="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 200px;"
+          size="small"
           class="filter-item"
           @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
@@ -22,6 +23,7 @@
           type="date"
           placeholder="提交时间"
           format="yyyy-MM-dd"
+          size="small"
           value-format="yyyy-MM-dd"
           class="filter-item"
         />
@@ -29,6 +31,8 @@
           v-waves
           class="filter-item"
           type="primary"
+          size="small"
+          round
           icon="el-icon-search"
           @click="handleFilter"
         >
@@ -67,6 +71,7 @@
           type="primary"
           icon="el-icon-search"
           size="mini"
+          round
           @click="handleFilter"
         >
           查询
@@ -80,9 +85,17 @@
       :data="list"
       border
       fit
+      size="small"
       highlight-current-row
       style="width: 100%;"
     >
+      <el-table-column
+        label="序号"
+        type="index"
+        align="center"
+        width="50"
+        :index="indexMethod"
+      />
       <el-table-column label="测试任务名称" min-width="120" align="center" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.examinationName }}</span>
@@ -130,6 +143,7 @@
       <pagination
         v-show="total>0"
         :total="total"
+        :page-sizes="[8, 16, 32, 64]"
         :page.sync="listQuery.currentPage"
         :limit.sync="listQuery.pageSize"
         class="fr"
@@ -163,7 +177,7 @@ export default {
       teachingTask: '',
       listQuery: {
         currentPage: 1,
-        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 5,
+        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 8,
         submitTime: '',
         teachingTaskId: ''
       }
@@ -278,6 +292,9 @@ export default {
     handleFilter() {
       this.listQuery.currentPage = 1
       this.getList()
+    },
+    indexMethod(index) {
+      return (index + 1) + (this.listQuery.currentPage - 1) * this.listQuery.pageSize
     }
   }
 }

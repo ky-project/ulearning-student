@@ -7,6 +7,7 @@
           :value="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 200px;"
+          size="small"
           class="filter-item"
           @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
@@ -21,6 +22,7 @@
           v-model="listQuery.experimentState"
           placeholder="状态"
           style="width: 200px;"
+          size="small"
           class="filter-item"
         >
           <el-option
@@ -33,6 +35,8 @@
         </el-select>
         <el-button
           v-waves
+          size="small"
+          round
           class="filter-item"
           type="primary"
           icon="el-icon-search"
@@ -78,6 +82,7 @@
           type="primary"
           icon="el-icon-search"
           size="mini"
+          round
           @click="handleFilter"
         >
           查询
@@ -92,6 +97,7 @@
       :data="list"
       border
       fit
+      size="small"
       highlight-current-row
       style="width: 100%;"
     >
@@ -148,6 +154,7 @@
       <pagination
         v-show="total>0"
         :total="total"
+        :page-sizes="[8, 16, 32, 64]"
         :page.sync="listQuery.currentPage"
         :limit.sync="listQuery.pageSize"
         class="fr"
@@ -189,7 +196,7 @@ export default {
       teachingTask: [],
       listQuery: {
         currentPage: 1,
-        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 5,
+        pageSize: this.$store.getters.device === 'mobile' ? 1000 : 8,
         teachingTaskId: '',
         experimentStatus: '' // 0-未做, 1-已提交, 2-已批改
       }
