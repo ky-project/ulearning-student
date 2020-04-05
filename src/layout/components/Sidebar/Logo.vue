@@ -49,7 +49,7 @@ export default {
   width: 100%;
   height: 50px;
   line-height: 50px;
-  background: #2b2f3a;
+  background: #7e8c9c;
   text-align: center;
   overflow: hidden;
 
@@ -62,7 +62,7 @@ export default {
       height: 32px;
       vertical-align: middle;
       margin-right: 12px;
-      background-color: #fff;
+      background-color: #7e8c9c;
       // padding: 10px;
       border-radius: 50%;
     }
@@ -70,7 +70,7 @@ export default {
     & .sidebar-title {
       display: inline-block;
       margin-right: 5px;
-      color: #fff;
+      color: #f5f5f5;
       font-weight: 600;
       line-height: 50px;
       font-size: 18px;
@@ -81,7 +81,7 @@ export default {
       display: inline-block;
       vertical-align: -7px;
       font-size: 12px;
-      color: #fff;
+      color: #f5f5f5;
       font-weight: normal;
     }
   }
