@@ -22,7 +22,7 @@
     <!-- 手机端适配结束 -->
     <div class="right-menu">
       <div class="gonggao">
-        <svg-icon icon-class="gonggao" class="icon" @click="$router.push('/notice/notice-list')" />
+        <svg-icon icon-class="tongzhi" class="icon" @click="$router.push('/notice/notice-list')" />
       </div>
       <div class="avatar" @click.stop="uploadHeadImg">
         <img :src="userInfo.stuPhoto ? userInfo.stuPhoto : stuPhoto" alt="">
@@ -143,8 +143,9 @@ export default {
     }
     .gonggao {
       margin-right: 20px;
+      margin-top: 3px;
       .icon {
-        font-size: 20px;
+        font-size: 24px;
         cursor: pointer;
         &:hover {
           color: #409EFF
