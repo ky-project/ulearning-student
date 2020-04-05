@@ -48,9 +48,10 @@
           style="width: 180px;"
           class="filter-item grow"
           size="mini"
+          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in teachingTask"
+            v-for="item in $store.getters.teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
