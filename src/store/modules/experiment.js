@@ -1,9 +1,8 @@
 import {
   SUBMIT_EXPERIMENT_RESULT,
-  DOWNLOAD_EXPERIMENT_ATTACHMENT_URL,
   GET_EXPERIMENT_RESULT // 根据id查询实验结果
 } from '@/api/url.js'
-import { axiosPost, axiosGet, axios2 } from '@/utils/axios'
+import { axiosGet, axios2 } from '@/utils/axios'
 import { Message } from 'element-ui'
 
 function getDefaultExperiment() {
@@ -97,7 +96,6 @@ const actions = {
   // 提交实验结果
   submitExperimentResult({ commit, state }) {
     return new Promise((resolve, reject) => {
-      console.log('提交实验结果')
       const { experimentResult, experimentId, file } = state.experimentResult
       const formData = new FormData()
       formData.append('file', file)
@@ -110,11 +108,11 @@ const actions = {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
         .then(response => {
-          this.$message.success('实验提交成功')
+          Message.success('实验提交成功')
           resolve(response)
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          Message.error(error.message || '出错')
           reject(error)
         })
     })

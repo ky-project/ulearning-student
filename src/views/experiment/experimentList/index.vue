@@ -91,7 +91,6 @@
       border
       fit
       highlight-current-row
-      :height="tableHeight"
       style="width: 100%;"
     >
       <el-table-column label="序号" align="center" width="80" show-overflow-tooltip>
@@ -162,7 +161,7 @@ import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import { axiosGet } from '@/utils/axios'
-import { getViewportOffset } from '@/utils/index'
+// import { getViewportOffset } from '@/utils/index'
 import {
   GET_SELECTED_COURSE_ARRAY_URL,
   GET_EXPERIMENT_PAGE_URL
@@ -199,14 +198,6 @@ export default {
     ...mapGetters(['experiment']),
     isMobile() {
       return this.$store.getters.device === 'mobile'
-    },
-    tableHeight() {
-      const height = getViewportOffset().h
-      if (this.isMobile) {
-        return height - 182
-      } else {
-        return ''
-      }
     }
   },
   created() {

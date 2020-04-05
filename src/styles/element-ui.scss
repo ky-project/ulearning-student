@@ -53,3 +53,7 @@
     width: 80%;
   }
 }
+
+.el-popup-parent--hidden .fixed-header {
+  padding-right: 0 !important;
+}
