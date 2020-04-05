@@ -5,15 +5,15 @@
       <file-nav :data="navList" :is-root="isRoot" @update="handleUpdate" @back="handleBack" />
       <div class="filter fr">
         <el-select
-          v-model="teachingTaskId"
+          :value="teachingTaskId"
           placeholder="教学任务"
-          style="width: 200px;"
+          :style="{width: '200px', marginTop: '5px'}"
           class="filter-item"
           size="mini"
-          :style="{marginTop: '5px'}"
+          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in teachingTask"
+            v-for="item in $store.getters.teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -136,21 +136,18 @@ export default {
     }
   },
   watch: {
-    teachingTaskId() {
-      if (this.fileParentId) {
-        this.initialFileList()
-      }
+    '$store.getters.teachingTaskId': {
+      handler(value) {
+        this.teachingTaskId = value
+        if (this.fileParentId) {
+          this.initialFileList()
+        }
+      },
+      immediate: true
     }
   },
   created() {
-    this.getTaskArray()
-      .then(response => {
-        this.teachingTask = response.data
-        if (this.teachingTask.length) {
-          this.teachingTaskId = this.teachingTask[0].key
-          this.initialFileList()
-        }
-      })
+    this.initialFileList()
   },
 
   beforeMount() {},

@@ -4,13 +4,14 @@
     <div class="filter-container">
       <div v-desktop>
         <el-select
-          v-model="listQuery.teachingTaskId"
+          :value="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 200px;"
           class="filter-item"
+          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in teachingTask"
+            v-for="item in $store.getters.teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -36,14 +37,15 @@
       </div>
       <div v-mobile class="mobile-top flex">
         <el-select
-          v-model="listQuery.teachingTaskId"
+          :value="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 120px;"
           class="filter-item grow"
           size="mini"
+          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in teachingTask"
+            v-for="item in $store.getters.teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -139,20 +141,17 @@
 </template>
 
 <script>
-import { mapMutations, mapGetters } from 'vuex'
+import { mapMutations } from 'vuex'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
-import MobileTop from '@/components/MobileTop'
-import { GET_SELECTED_COURSE_ARRAY_URL } from '@/api/url'
-import { axiosGet, axiosPost } from '@/utils/axios'
-import { getViewportOffset } from '@/utils/index'
+import { axiosGet } from '@/utils/axios'
 import {
   GET_EXAM_PAGE_URL
 } from '@/api/url'
 
 export default {
   name: 'SelectCourse',
-  components: { Pagination, MobileTop },
+  components: { Pagination },
   directives: { waves },
   data() {
     return {
@@ -184,16 +183,17 @@ export default {
       }
     } */
   },
+  watch: {
+    '$store.getters.teachingTaskId': {
+      handler(value) {
+        this.listQuery.teachingTaskId = value
+        // this.getList()
+      },
+      immediate: true
+    }
+  },
   created() {
-    console.log('created')
-    this.getTaskArray()
-      .then(response => {
-        this.teachingTask = response.data
-        if (this.teachingTask.length) {
-          this.listQuery.teachingTaskId = this.teachingTask[0].key
-          this.getList()
-        }
-      })
+    this.getList()
   },
   methods: {
     ...mapMutations({
@@ -211,7 +211,7 @@ export default {
       }
     },
     // 获取教学任务数组
-    getTaskArray() {
+    /* getTaskArray() {
       return new Promise((resolve, reject) => {
         axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
           .then(response => {
@@ -222,7 +222,7 @@ export default {
             reject(error)
           })
       })
-    },
+    }, */
     examDetail(row) {
       if (row.examinationShowResult) {
         // 1. 清空

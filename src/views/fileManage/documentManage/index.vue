@@ -5,15 +5,15 @@
       <file-nav :data="navList" :is-root="isRoot" @update="handleUpdate" @back="handleBack" />
       <div class="filter fr">
         <el-select
-          v-model="teachingTaskId"
+          :value="teachingTaskId"
           placeholder="教学任务"
-          style="width: 200px;"
+          :style="{width: '200px', marginTop: '5px'}"
           class="filter-item"
           size="mini"
-          :style="{marginTop: '5px'}"
+          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in teachingTask"
+            v-for="item in $store.getters.teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -98,7 +98,6 @@
 <script>
 import { getViewportOffset, setFileIcon, setFileSize } from '@/utils/index'
 import {
-  GET_SELECTED_COURSE_ARRAY_URL, // 查询所有已选教学任务数组
   GET_DOCUMENT_ROOT_URL, // 查询文件资料根节点
   GET_DOCUMENT_LIST_URL, // 查询文件资料列表
   DOWNLOAD_DOCUMENT_URL // 下载文件
@@ -135,46 +134,36 @@ export default {
       }
     }
   },
-  watch: {
+  /* watch: {
     teachingTaskId() {
       if (this.fileParentId) {
         this.initialFileList()
       }
     }
-  },
-  created() {
-    this.getTaskArray()
-      .then(response => {
-        this.teachingTask = response.data
-        if (this.teachingTask.length) {
-          this.teachingTaskId = this.teachingTask[0].key
+  }, */
+  watch: {
+    '$store.getters.teachingTaskId': {
+      handler(value) {
+        this.teachingTaskId = value
+        if (this.fileParentId) {
           this.initialFileList()
         }
-      })
+      },
+      immediate: true
+    }
+  },
+  created() {
+    this.initialFileList()
   },
 
   beforeMount() {},
 
   mounted() {},
-
   methods: {
     // 格式化时间
     formatTime(time) {
       const tempArr = time.split(' ')
       return tempArr[0].slice(2)
-    },
-    // 获取教学任务数组
-    getTaskArray() {
-      return new Promise((resolve, reject) => {
-        axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
-          .then(response => {
-            resolve(response)
-          })
-          .catch(error => {
-            this.$message.error(error.message || '出错')
-            reject(error)
-          })
-      })
     },
     // 查询文件资料根节点
     getDocumentRoot(data) {

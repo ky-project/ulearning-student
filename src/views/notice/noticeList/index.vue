@@ -5,14 +5,14 @@
       <div class="filter-container">
         <div>
           <el-select
-            v-model="listQuery.teachingTaskId"
+            :value="listQuery.teachingTaskId"
             placeholder="教学任务"
-            style="width: 200px;"
+            :style="{width: '200px', marginTop: '5px'}"
             class="filter-item"
-            :style="{marginTop: '5px'}"
+            @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
           >
             <el-option
-              v-for="item in teachingTask"
+              v-for="item in $store.getters.teachingTask"
               :key="item.key"
               :label="item.label"
               :value="item.key"
@@ -67,14 +67,15 @@
     <div v-mobile>
       <div v-mobile class="mobile-top flex">
         <el-select
-          v-model="listQuery.teachingTaskId"
+          :value="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 180px;"
           class="filter-item grow"
           size="mini"
+          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in teachingTask"
+            v-for="item in $store.getters.teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -137,7 +138,6 @@ import { mapMutations } from 'vuex'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 import {
-  GET_SELECTED_COURSE_ARRAY_URL, // 查询所有已选教学任务数组
   GET_NOTICE_PAGE_URL
 } from '@/api/url'
 import { axiosGet } from '@/utils/axios'
@@ -162,23 +162,17 @@ export default {
       }
     }
   },
-  computed: {},
-
-  watch: {},
-  created() {
-    this.getTaskArray()
-      .then(response => {
-        this.teachingTask = response.data
-        if (this.teachingTask.length) {
-          this.listQuery.teachingTaskId = this.teachingTask[0].key
-          this.getList()
-        }
-      })
+  watch: {
+    '$store.getters.teachingTaskId': {
+      handler(value) {
+        this.listQuery.teachingTaskId = value
+      },
+      immediate: true
+    }
   },
-  beforeMount() {},
-
-  mounted() {},
-
+  created() {
+    this.getList()
+  },
   methods: {
     ...mapMutations({
       'resetNotice': 'notice/RESET_NOTICE',
@@ -212,19 +206,6 @@ export default {
         .catch(error => {
           this.$message.error(error.message || '出错')
         })
-    },
-    // 获取教学任务数组
-    getTaskArray() {
-      return new Promise((resolve, reject) => {
-        axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
-          .then(response => {
-            resolve(response)
-          })
-          .catch(error => {
-            this.$message.error(error.message || '出错')
-            reject(error)
-          })
-      })
     }
   }
 
@@ -252,16 +233,9 @@ export default {
       color: #666;
       font-size: 16px;
     }
-    /* &-list {
-      border: 1px solid #eee;
-      border-radius: 5px;
-    } */
     &-item {
       line-height: 40px;
       border-bottom: 1px solid #ccc;
-      /* &:last-child {
-        border-bottom: none;
-      } */
       cursor: pointer;
       &:hover {
         background-color: #eee;

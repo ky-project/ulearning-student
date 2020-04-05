@@ -3,7 +3,8 @@ import {
   LOG_OUT_URL,
   INFO_URL,
   UPLOAD_AVATAR_URL,
-  UPDATE_INFO_URL
+  UPDATE_INFO_URL,
+  GET_SELECTED_COURSE_ARRAY_URL
 } from '@/api/url'
 import { axiosPost, axiosGet, axios2 } from '@/utils/axios'
 import { removeVuex, removeRefreshToken, removeToken } from '@/utils/auth'
@@ -11,7 +12,9 @@ import { removeVuex, removeRefreshToken, removeToken } from '@/utils/auth'
 
 const getDefaultState = () => {
   return {
-    userInfo: ''
+    userInfo: '',
+    teachingTask: [],
+    teachingTaskId: ''
   }
 }
 
@@ -21,7 +24,7 @@ const mutations = {
   SET_USER_INFO: (state, userInfo) => {
     state.userInfo = userInfo
   },
-  RESET_STATE: state => {
+  RESET_STATE: (state) => {
     Object.assign(state, getDefaultState())
   },
   SET_TOKEN: (state, token) => {
@@ -35,39 +38,62 @@ const mutations = {
   },
   SET_ROLE: (state, role) => {
     state.role = role
+  },
+  SET_TEACHING_TASK: (state, teachingTask) => {
+    state.teachingTask = teachingTask
+  },
+  SET_TEACHING_TASK_ID: (state, teachingTaskId) => {
+    state.teachingTaskId = teachingTaskId
   }
 }
 
 const actions = {
+  // 获取教学任务
+  getTeachingTask({ commit }) {
+    return new Promise((resolve, reject) => {
+      axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
+        .then((response) => {
+          const teachingTask = response.data
+          console.log('teachingTask', teachingTask)
+          commit('SET_TEACHING_TASK', teachingTask)
+          // 初始化
+          if (teachingTask.length) {
+            commit('SET_TEACHING_TASK_ID', teachingTask[0].key)
+          }
+          resolve()
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
+  },
   // 获取用户信息
   getInfo({ commit }) {
     return new Promise((resolve, reject) => {
       axiosGet(INFO_URL)
-        .then(response => {
+        .then((response) => {
           commit('SET_USER_INFO', response.data)
           resolve()
         })
-        .catch(error => (
-          reject(error)
-        ))
+        .catch((error) => reject(error))
     })
   },
   // 登录
   login({ commit, dispatch }, userInfo) {
     return new Promise((resolve, reject) => {
       axiosPost(LOGIN_URL, userInfo)
-        .then(response => {
+        .then((response) => {
           console.log('登录成功')
           // 成功，重新获取用户信息
           dispatch('getInfo')
             .then(() => {
               resolve()
             })
-            .catch(error => {
+            .catch((error) => {
               reject(error)
             })
         })
-        .catch(error => {
+        .catch((error) => {
           reject(error)
         })
     })
@@ -83,7 +109,7 @@ const actions = {
           removeVuex() // 删除sessionStorage
           resolve()
         })
-        .catch(error => {
+        .catch((error) => {
           reject(error)
         })
     })
@@ -91,7 +117,7 @@ const actions = {
 
   // remove token
   resetToken({ commit }) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       // 移除token
       removeToken()
       removeRefreshToken()
@@ -110,17 +136,17 @@ const actions = {
         data,
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-        .then(response => {
+        .then((response) => {
           // 成功，重新获取用户信息
           dispatch('getInfo')
             .then(() => {
               resolve()
             })
-            .catch(error => {
+            .catch((error) => {
               reject(error)
             })
         })
-        .catch(error => {
+        .catch((error) => {
           reject(error)
         })
     })
@@ -130,17 +156,17 @@ const actions = {
     return new Promise((resolve, reject) => {
       // 更新用户信息
       axiosPost(UPDATE_INFO_URL, data)
-        .then(response => {
+        .then((response) => {
           // 成功，重新获取用户信息
           dispatch('getInfo')
             .then(() => {
               resolve()
             })
-            .catch(error => {
+            .catch((error) => {
               reject(error)
             })
         })
-        .catch(error => {
+        .catch((error) => {
           reject(error)
         })
     })
