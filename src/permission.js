@@ -23,32 +23,19 @@ router.beforeEach(async(to, from, next) => {
   if (hasToken) {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
-      console.log('去往登录页')
       next({ path: '/' })
       NProgress.done()
     } else {
-      console.log('去往非登录页')
-      // const hasGetUserInfo = store.getters.userInfo
-      const { userInfo, teachingTask } = store.getters
-      const hasInfo = userInfo && teachingTask
-      if (hasInfo) {
-        console.log('含有用户信息')
+      const hasGetUserInfo = store.getters.userInfo
+      if (hasGetUserInfo) {
         next()
       } else {
-        console.log('不含用户信息')
         try {
           // get user info
-          console.log('尝试重新获取用户信息')
-          const promiseArr = [
-            store.dispatch('user/getInfo'),
-            store.dispatch('user/getTeachingTask')
-          ]
-          await Promise.all(promiseArr)
-          console.log('用户信息获取成功')
+          await store.dispatch('user/getInfo')
           next()
         } catch (error) {
           // remove token and go to login page to re-login
-          console.log('用户信息获取失败')
           await store.dispatch('user/resetToken')
           Message.error(error.message || '出错')
           next('/login')

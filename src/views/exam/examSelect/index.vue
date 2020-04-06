@@ -6,14 +6,14 @@
     <el-form ref="form" class="exam-select-form" :rules="rules" :model="ruleForm" hide-required-asterisk>
       <el-form-item prop="teachingTaskId">
         <el-select
-          :value="ruleForm.teachingTaskId"
+          v-model="ruleForm.teachingTaskId"
           placeholder="教学任务"
           style="width: 300px;"
           class="filter-item"
-          @change="(teachingTaskId)=>{$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
+          @change="changeHandler"
         >
           <el-option
-            v-for="item in $store.getters.teachingTask"
+            v-for="item in teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -45,7 +45,9 @@
 
 <script>
 import { axiosGet } from '@/utils/axios'
+// import { stateMap } from './../config.js'
 import {
+  GET_SELECTED_COURSE_ARRAY_URL,
   GET_EXAMLIST_URL
 } from '@/api/url'
 export default {
@@ -75,15 +77,17 @@ export default {
 
   computed: {},
 
-  watch: {
-    '$store.getters.teachingTaskId': {
-      handler(value) {
-        this.ruleForm.teachingTaskId = value
-        this.changeHandler(value)
-      },
-      immediate: true
-    }
+  watch: {},
+  created() {
+    this.getTaskArray()
+      .then(response => {
+        this.teachingTask = response.data
+      })
   },
+
+  beforeMount() {},
+
+  mounted() {},
   methods: {
     clickHandler(formName) {
       this.$refs[formName].validate((valid) => {
@@ -123,6 +127,19 @@ export default {
             this.examListMap[teachingTaskId] = this.examList
           })
       }
+    },
+    // 获取教学任务数组
+    getTaskArray() {
+      return new Promise((resolve, reject) => {
+        axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
+          .then(response => {
+            resolve(response)
+          })
+          .catch(error => {
+            this.$message.error(error.message || '出错')
+            reject(error)
+          })
+      })
     },
     // 根据教学任务id查询测试任务数组
     getExamList(data) {

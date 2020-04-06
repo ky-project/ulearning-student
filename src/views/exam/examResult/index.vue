@@ -4,15 +4,14 @@
     <div class="filter-container">
       <div v-desktop>
         <el-select
-          :value="listQuery.teachingTaskId"
+          v-model="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 200px;"
           size="small"
           class="filter-item"
-          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in $store.getters.teachingTask"
+            v-for="item in teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -41,15 +40,14 @@
       </div>
       <div v-mobile class="mobile-top flex">
         <el-select
-          :value="listQuery.teachingTaskId"
+          v-model="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 120px;"
           class="filter-item grow"
           size="mini"
-          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in $store.getters.teachingTask"
+            v-for="item in teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -155,17 +153,20 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
-import { axiosGet } from '@/utils/axios'
+import MobileTop from '@/components/MobileTop'
+import { GET_SELECTED_COURSE_ARRAY_URL } from '@/api/url'
+import { axiosGet, axiosPost } from '@/utils/axios'
+import { getViewportOffset } from '@/utils/index'
 import {
   GET_EXAM_PAGE_URL
 } from '@/api/url'
 
 export default {
   name: 'SelectCourse',
-  components: { Pagination },
+  components: { Pagination, MobileTop },
   directives: { waves },
   data() {
     return {
@@ -197,17 +198,15 @@ export default {
       }
     } */
   },
-  watch: {
-    '$store.getters.teachingTaskId': {
-      handler(value) {
-        this.listQuery.teachingTaskId = value
-        // this.getList()
-      },
-      immediate: true
-    }
-  },
   created() {
-    this.getList()
+    this.getTaskArray()
+      .then(response => {
+        this.teachingTask = response.data
+        if (this.teachingTask.length) {
+          this.listQuery.teachingTaskId = this.teachingTask[0].key
+          this.getList()
+        }
+      })
   },
   methods: {
     ...mapMutations({
@@ -225,7 +224,7 @@ export default {
       }
     },
     // 获取教学任务数组
-    /* getTaskArray() {
+    getTaskArray() {
       return new Promise((resolve, reject) => {
         axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
           .then(response => {
@@ -236,7 +235,7 @@ export default {
             reject(error)
           })
       })
-    }, */
+    },
     examDetail(row) {
       if (row.examinationShowResult) {
         // 1. 清空
@@ -300,51 +299,57 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.filter-container {
-  padding-bottom: 10px;
-  .filter-item {
-    display: inline-block;
-    vertical-align: middle;
-    margin-bottom: 10px;
-  }
-  .btn {
-    padding: 0 5px;
-    margin-left: 5px;
-    line-height: 30px;
-  }
-}
-.el-table {
-  .icon--detail {
-    color: #67C23A;
-    font-size: 20px;
-    cursor: pointer;
-    &.disabled {
-      color: #ccc;
+  .filter-container {
+    padding-bottom: 10px;
+
+    .filter-item {
+      display: inline-block;
+      vertical-align: middle;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      padding: 0 5px;
+      margin-left: 5px;
+      line-height: 30px;
     }
   }
-}
+
+  .el-table {
+    .icon--detail {
+      color: #67C23A;
+      font-size: 20px;
+      cursor: pointer;
+
+      &.disabled {
+        color: #ccc;
+      }
+    }
+  }
 </style>
 <style lang="scss">
-.app-container {
-  .el-dialog__body {
-    padding-bottom: 0;
+  .app-container {
+    .el-dialog__body {
+      padding-bottom: 0;
+    }
+
+    .el-select {
+      width: 100%;
+    }
   }
-  .el-select {
-    width: 100%;
-  }
-}
 </style>
 <style lang="scss" scoped>
-@media screen and (max-width: '992px'){
-  .filter-container {
-    .filter-item {
-      margin-bottom: 0;
-      margin-right: 5px;
-    }
-    .mobile-top {
-      padding: 10px;
-      background-color: #eee;
+  @media screen and (max-width: '992px') {
+    .filter-container {
+      .filter-item {
+        margin-bottom: 0;
+        margin-right: 5px;
+      }
+
+      .mobile-top {
+        padding: 10px;
+        background-color: #eee;
+      }
     }
   }
-}
 </style>

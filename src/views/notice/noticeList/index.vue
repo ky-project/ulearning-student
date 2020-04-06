@@ -5,14 +5,13 @@
       <div class="filter-container">
         <div>
           <el-select
-            :value="listQuery.teachingTaskId"
+            v-model="listQuery.teachingTaskId"
             placeholder="教学任务"
             :style="{width: '200px', marginTop: '5px'}"
             class="filter-item"
-            @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
           >
             <el-option
-              v-for="item in $store.getters.teachingTask"
+              v-for="item in teachingTask"
               :key="item.key"
               :label="item.label"
               :value="item.key"
@@ -67,15 +66,14 @@
     <div v-mobile>
       <div v-mobile class="mobile-top flex">
         <el-select
-          :value="listQuery.teachingTaskId"
+          v-model="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 180px;"
           class="filter-item grow"
           size="mini"
-          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in $store.getters.teachingTask"
+            v-for="item in teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -138,6 +136,7 @@ import { mapMutations } from 'vuex'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 import {
+  GET_SELECTED_COURSE_ARRAY_URL, // 查询所有已选教学任务数组
   GET_NOTICE_PAGE_URL
 } from '@/api/url'
 import { axiosGet } from '@/utils/axios'
@@ -162,17 +161,22 @@ export default {
       }
     }
   },
-  watch: {
-    '$store.getters.teachingTaskId': {
-      handler(value) {
-        this.listQuery.teachingTaskId = value
-      },
-      immediate: true
-    }
-  },
+  computed: {},
+
+  watch: {},
   created() {
-    this.getList()
+    this.getTaskArray()
+      .then(response => {
+        this.teachingTask = response.data
+        if (this.teachingTask.length) {
+          this.listQuery.teachingTaskId = this.teachingTask[0].key
+          this.getList()
+        }
+      })
   },
+  beforeMount() {},
+
+  mounted() {},
   methods: {
     ...mapMutations({
       'resetNotice': 'notice/RESET_NOTICE',
@@ -195,10 +199,10 @@ export default {
     },
     getList() {
       this.listLoading = true
-      axiosGet(GET_NOTICE_PAGE_URL, { params: this.listQuery })
+      axiosGet(GET_NOTICE_PAGE_URL, {params: this.listQuery})
         .then(response => {
           console.log(response.data)
-          const { content, total } = response.data
+          const {content, total} = response.data
           this.list = content
           this.total = total
           this.listLoading = false
@@ -206,9 +210,21 @@ export default {
         .catch(error => {
           this.$message.error(error.message || '出错')
         })
+    },
+    // 获取教学任务数组
+    getTaskArray() {
+      return new Promise((resolve, reject) => {
+        axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
+          .then(response => {
+            resolve(response)
+          })
+          .catch(error => {
+            this.$message.error(error.message || '出错')
+            reject(error)
+          })
+      })
     }
   }
-
 }
 
 </script>

@@ -4,15 +4,14 @@
     <div class="filter-container">
       <div v-desktop>
         <el-select
-          :value="listQuery.teachingTaskId"
+          v-model="listQuery.teachingTaskId"
           placeholder="教学任务"
           style="width: 200px;"
           size="small"
           class="filter-item"
-          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in $store.getters.teachingTask"
+            v-for="item in teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -52,10 +51,9 @@
           style="width: 180px;"
           class="filter-item grow"
           size="mini"
-          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in $store.getters.teachingTask"
+            v-for="item in teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -172,6 +170,7 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 import { axiosGet } from '@/utils/axios'
 // import { getViewportOffset } from '@/utils/index'
 import {
+  GET_SELECTED_COURSE_ARRAY_URL,
   GET_EXPERIMENT_PAGE_URL
 } from '@/api/url'
 
@@ -208,25 +207,15 @@ export default {
       return this.$store.getters.device === 'mobile'
     }
   },
-  watch: {
-    '$store.getters.teachingTaskId': {
-      handler(value) {
-        this.listQuery.teachingTaskId = value
-        // this.getList()
-      },
-      immediate: true
-    }
-  },
   created() {
-    /* this.getTaskArray()
+    this.getTaskArray()
       .then(response => {
         this.teachingTask = response.data
         if (this.teachingTask.length) {
           this.listQuery.teachingTaskId = this.teachingTask[0].key
-
+          this.getList()
         }
-      }) */
-    this.getList()
+      })
   },
   methods: {
     ...mapMutations({
@@ -307,7 +296,7 @@ export default {
       })
     },
     // 获取教学任务数组
-    /* getTaskArray() {
+    getTaskArray() {
       return new Promise((resolve, reject) => {
         axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
           .then(response => {
@@ -318,7 +307,7 @@ export default {
             reject(error)
           })
       })
-    }, */
+    },
     setPagination(currentPage, pageSize) {
       this.getList()
     },

@@ -2,18 +2,17 @@
   <div class="document-manage" @contextmenu.prevent="()=>{}">
     <!-- 操作栏 -->
     <div class="sub-nav">
-      <file-nav :data="navList" :is-root="isRoot" @update="handleUpdate" @back="handleBack" />
+      <file-nav :data="navList" :is-root="isRoot" @update="handleUpdate" @back="handleBack"/>
       <div class="filter fr">
         <el-select
-          :value="teachingTaskId"
+          v-model="teachingTaskId"
           placeholder="教学任务"
           :style="{width: '200px', marginTop: '5px'}"
           class="filter-item"
           size="mini"
-          @change="(teachingTaskId) => {$store.commit('user/SET_TEACHING_TASK_ID', teachingTaskId)}"
         >
           <el-option
-            v-for="item in $store.getters.teachingTask"
+            v-for="item in teachingTask"
             :key="item.key"
             :label="item.label"
             :value="item.key"
@@ -39,7 +38,7 @@
         min-width="200px"
       >
         <template slot-scope="scope">
-          <svg-icon :icon-class="setFileIcon(scope.row.fileExt)" class-name="icon" />
+          <svg-icon :icon-class="setFileIcon(scope.row.fileExt)" class-name="icon"/>
           <span>{{ setFileName(scope.row) }}</span>
         </template>
       </el-table-column>
@@ -64,7 +63,7 @@
         min-width="50px"
       >
         <template slot-scope="scope">
-          <svg-icon icon-class="xiazai" :class="{disabled: scope.row.fileType === 2}" @click="download(scope.row)" />
+          <svg-icon icon-class="xiazai" :class="{disabled: scope.row.fileType === 2}" @click="download(scope.row)"/>
         </template>
       </el-table-column>
     </el-table>
@@ -78,14 +77,14 @@
             class="file-zone-mobile-list-item"
             @click="() => enterFile(item)"
           >
-            <svg-icon :icon-class="setFileIcon(item.fileExt)" class="file-icon" />
+            <svg-icon :icon-class="setFileIcon(item.fileExt)" class="file-icon"/>
             <h4 class="file-name">{{ setFileName(item) }}</h4>
             <div class="file-info">
               <span class="file-date">{{ formatTime(item.updateTime) }}</span>
               <span class="file-size">{{ setFileSize(item.fileSize) }}</span>
             </div>
             <div v-if="item.fileType !== 2" class="file-download" @click="download(item)">
-              <svg-icon icon-class="xiazai" />
+              <svg-icon icon-class="xiazai"/>
             </div>
           </li>
         </ul>
@@ -98,12 +97,14 @@
 <script>
 import { getViewportOffset, setFileIcon, setFileSize } from '@/utils/index'
 import {
+  GET_SELECTED_COURSE_ARRAY_URL, // 查询所有已选教学任务数组
   GET_DOCUMENT_ROOT_URL, // 查询文件资料根节点
   GET_DOCUMENT_LIST_URL, // 查询文件资料列表
   DOWNLOAD_DOCUMENT_URL // 下载文件
 } from '@/api/url'
 import FileNav from '@/views/fileManage/components/FileNav'
 import { axiosGet } from '@/utils/axios'
+
 export default {
   // 文件资料管理
   name: 'DocumentManage',
@@ -134,36 +135,47 @@ export default {
       }
     }
   },
-  /* watch: {
+  watch: {
     teachingTaskId() {
       if (this.fileParentId) {
         this.initialFileList()
       }
     }
-  }, */
-  watch: {
-    '$store.getters.teachingTaskId': {
-      handler(value) {
-        this.teachingTaskId = value
-        if (this.fileParentId) {
-          this.initialFileList()
-        }
-      },
-      immediate: true
-    }
   },
   created() {
-    this.initialFileList()
+    this.getTaskArray()
+      .then(response => {
+        this.teachingTask = response.data
+        if (this.teachingTask.length) {
+          this.teachingTaskId = this.teachingTask[0].key
+          this.initialFileList()
+        }
+      })
   },
 
-  beforeMount() {},
+  beforeMount() {
+  },
 
-  mounted() {},
+  mounted() {
+  },
   methods: {
     // 格式化时间
     formatTime(time) {
       const tempArr = time.split(' ')
       return tempArr[0].slice(2)
+    },
+    // 获取教学任务数组
+    getTaskArray() {
+      return new Promise((resolve, reject) => {
+        axiosGet(GET_SELECTED_COURSE_ARRAY_URL)
+          .then(response => {
+            resolve(response)
+          })
+          .catch(error => {
+            this.$message.error(error.message || '出错')
+            reject(error)
+          })
+      })
     },
     // 查询文件资料根节点
     getDocumentRoot(data) {
@@ -284,138 +296,161 @@ export default {
 
 </script>
 <style lang='scss' scoped>
-.document-manage {
-  .operator-bar {
-    width: 100%;
-    height: 36px;
-    padding: 3px 10px;
-    // background-color: #DCDFE6;
-    &__list-item {
-      padding: 5px;
-      border-radius: 3px;
-      margin-right: 10px;
-      box-sizing: border-box;
-      .upload {
-        display: inline-block;
-      }
-      span {
-        font-size: 14px;
-      }
-      span.disabled {
-        color: #ccc;
-      }
-      &:hover {
-        color:#409EFF;
-        // border: 1px solid #409EFF;
-        cursor: pointer;
-      }
-    }
-    .zone {
-      padding: 8px 10px;
-    }
-    .disabled {
-      color: #ccc;
-    }
-  }
-  .sub-nav {
-    height: 40px;
-    padding: 0 10px;
-    // background-color: #EBEEF5;
-    border: 1px solid #ddd;
-    overflow: hidden;
-    ::v-deep .el-breadcrumb {
-      margin-top: 13px;
-      width: 70%;
-      float: left;
-    }
-    ::v-deep .el-button {
-      padding: 6px;
-      margin-top: 5px;
-    }
-  }
-  .file-zone {
-    .disabled {
-      color: #ccc;
-    }
-    .icon {
-      font-size: 18px;
-      margin-right: 5px;
-    }
-    .operator {
-      display: none;
-      .item-icon {
+  .document-manage {
+    .operator-bar {
+      width: 100%;
+      height: 36px;
+      padding: 3px 10px;
+      // background-color: #DCDFE6;
+      &__list-item {
+        padding: 5px;
+        border-radius: 3px;
         margin-right: 10px;
-        font-size: 16px;
-        cursor: pointer;
-        &:hover {
-          color: #409EFF;
-        }
-      }
-    }
-    &::v-deep .el-table__row {
-      &:hover {
-        cursor: pointer;
-        .operator {
+        box-sizing: border-box;
+
+        .upload {
           display: inline-block;
         }
+
+        span {
+          font-size: 14px;
+        }
+
+        span.disabled {
+          color: #ccc;
+        }
+
+        &:hover {
+          color: #409EFF;
+          // border: 1px solid #409EFF;
+          cursor: pointer;
+        }
+      }
+
+      .zone {
+        padding: 8px 10px;
+      }
+
+      .disabled {
+        color: #ccc;
+      }
+    }
+
+    .sub-nav {
+      height: 40px;
+      padding: 0 10px;
+      // background-color: #EBEEF5;
+      border: 1px solid #ddd;
+      overflow: hidden;
+
+      ::v-deep .el-breadcrumb {
+        margin-top: 13px;
+        width: 70%;
+        float: left;
+      }
+
+      ::v-deep .el-button {
+        padding: 6px;
+        margin-top: 5px;
+      }
+    }
+
+    .file-zone {
+      .disabled {
+        color: #ccc;
+      }
+
+      .icon {
+        font-size: 18px;
+        margin-right: 5px;
+      }
+
+      .operator {
+        display: none;
+
+        .item-icon {
+          margin-right: 10px;
+          font-size: 16px;
+          cursor: pointer;
+
+          &:hover {
+            color: #409EFF;
+          }
+        }
+      }
+
+      &::v-deep .el-table__row {
+        &:hover {
+          cursor: pointer;
+
+          .operator {
+            display: inline-block;
+          }
+        }
       }
     }
   }
-}
 </style>
 <style lang='scss' scoped>
-.document-manage {
-  /* .sub-nav {
-    background-color: #eee;
-  } */
-  .file-zone-mobile {
-    height: calc(100vh - 145px);
-    position: relative;
-    &-empty {
-      position: absolute;
-      top: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #ccc;
-      font-size: 16px;
-    }
-    &-list {
-      &-item {
-        position: relative;
-        padding-left: 40px;
-        padding-right: 40px;
-        height: 40px;
-        border-bottom: 1px solid #ccc;
-        &:active {
-          background: #ccc;
-        }
-        .file-icon {
-          position: absolute;
-          top: 50%;
-          left: 5px;
-          transform: translateY(-50%);
-          font-size: 30px;
-        }
-        .file-name {
-          // width: calc(100vw - 100px);
-          padding-top: 5px;
-          font-size: 14px;
-          // text-overflow: ellipsis;
-          // white-space:nowrap;
-          // line-height: 23px;
-        }
-        .file-info {
-          color: #666;
-          font-size: 12px;
-        }
-        .file-download {
-          position: absolute;
-          right: 20px;
-          top: 50%;
-          transform: translateY(-50%);
+  .document-manage {
+    /* .sub-nav {
+      background-color: #eee;
+    } */
+    .file-zone-mobile {
+      height: calc(100vh - 145px);
+      position: relative;
+
+      &-empty {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ccc;
+        font-size: 16px;
+      }
+
+      &-list {
+        &-item {
+          position: relative;
+          padding-left: 40px;
+          padding-right: 40px;
+          height: 40px;
+          border-bottom: 1px solid #ccc;
+
+          &:active {
+            background: #ccc;
+          }
+
+          .file-icon {
+            position: absolute;
+            top: 50%;
+            left: 5px;
+            transform: translateY(-50%);
+            font-size: 30px;
+          }
+
+          .file-name {
+            // width: calc(100vw - 100px);
+            padding-top: 5px;
+            font-size: 14px;
+            // text-overflow: ellipsis;
+            // white-space:nowrap;
+            // line-height: 23px;
+          }
+
+          .file-info {
+            color: #666;
+            font-size: 12px;
+          }
+
+          .file-download {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+          }
         }
       }
     }
   }
-}
 </style>
