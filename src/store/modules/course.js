@@ -22,7 +22,7 @@ const actions = {
           resolve(response)
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          // this.$message.error(error.message || '出错')
           reject(error)
         })
     })

@@ -176,7 +176,7 @@ export default {
           this.experimentNumber = response.data
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          // this.$message.error(error.message || '出错')
           this.listLoading = false
         })
     },
@@ -186,7 +186,7 @@ export default {
           this.examinationNumber = response.data
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          // this.$message.error(error.message || '出错')
           this.listLoading = false
         })
     },
@@ -196,7 +196,7 @@ export default {
           this.teachingTaskList = response.data
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          // this.$message.error(error.message || '出错')
         })
     },
     getActivityList() {
@@ -207,7 +207,7 @@ export default {
           this.total = total
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          // this.$message.error(error.message || '出错')
           this.listLoading = false
         })
     },

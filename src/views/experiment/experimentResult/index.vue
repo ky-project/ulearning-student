@@ -213,7 +213,7 @@ export default {
           })
           .catch(error => {
             this.loading = false
-            this.$message.error(error.message || '出错')
+            // this.$message.error(error.message || '出错')
           })
       })
     },
@@ -230,7 +230,7 @@ export default {
           })
           .catch(error => {
             this.loading = false
-            this.$message.error(error.message || '出错')
+            // this.$message.error(error.message || '出错')
           })
       })
       /* this.excellentList = [
@@ -256,7 +256,7 @@ export default {
           })
           .catch(error => {
             this.loading = false
-            this.$message.error(error.message || '出错')
+            // this.$message.error(error.message || '出错')
           })
       })
     }

@@ -181,7 +181,7 @@ export default {
           this.getList()
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          // this.$message.error(error.message || '出错')
         })
     },
     unselectCourse(id) {
@@ -191,7 +191,7 @@ export default {
           this.getList()
         })
         .catch(error => {
-          this.$message.error(error.message || '出错')
+          // this.$message.error(error.message || '出错')
         })
     },
     handleChange() {

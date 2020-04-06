@@ -2,7 +2,7 @@
   <div class="document-manage" @contextmenu.prevent="()=>{}">
     <!-- 操作栏 -->
     <div class="sub-nav">
-      <file-nav :data="navList" :is-root="isRoot" @update="handleUpdate" @back="handleBack"/>
+      <file-nav :data="navList" :is-root="isRoot" @update="handleUpdate" @back="handleBack" />
       <div class="filter fr">
         <el-select
           v-model="teachingTaskId"
@@ -38,7 +38,7 @@
         min-width="200px"
       >
         <template slot-scope="scope">
-          <svg-icon :icon-class="setFileIcon(scope.row.fileExt)" class-name="icon"/>
+          <svg-icon :icon-class="setFileIcon(scope.row.fileExt)" class-name="icon" />
           <span>{{ setFileName(scope.row) }}</span>
         </template>
       </el-table-column>
@@ -63,7 +63,7 @@
         min-width="50px"
       >
         <template slot-scope="scope">
-          <svg-icon icon-class="xiazai" :class="{disabled: scope.row.fileType === 2}" @click="download(scope.row)"/>
+          <svg-icon icon-class="xiazai" :class="{disabled: scope.row.fileType === 2}" @click="download(scope.row)" />
         </template>
       </el-table-column>
     </el-table>
@@ -77,14 +77,14 @@
             class="file-zone-mobile-list-item"
             @click="() => enterFile(item)"
           >
-            <svg-icon :icon-class="setFileIcon(item.fileExt)" class="file-icon"/>
+            <svg-icon :icon-class="setFileIcon(item.fileExt)" class="file-icon" />
             <h4 class="file-name">{{ setFileName(item) }}</h4>
             <div class="file-info">
               <span class="file-date">{{ formatTime(item.updateTime) }}</span>
               <span class="file-size">{{ setFileSize(item.fileSize) }}</span>
             </div>
             <div v-if="item.fileType !== 2" class="file-download" @click="download(item)">
-              <svg-icon icon-class="xiazai"/>
+              <svg-icon icon-class="xiazai" />
             </div>
           </li>
         </ul>
@@ -172,7 +172,7 @@ export default {
             resolve(response)
           })
           .catch(error => {
-            this.$message.error(error.message || '出错')
+            // this.$message.error(error.message || '出错')
             reject(error)
           })
       })
@@ -187,7 +187,7 @@ export default {
             resolve(response)
           })
           .catch(error => {
-            this.$message.error(error.message || '出错')
+            // this.$message.error(error.message || '出错')
             this.loading = false
             reject(error)
           })
@@ -208,7 +208,7 @@ export default {
             resolve(response)
           })
           .catch(error => {
-            this.$message.error(error.message || '出错')
+            // this.$message.error(error.message || '出错')
             this.loading = false
             reject(error)
           })
