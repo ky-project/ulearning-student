@@ -220,12 +220,17 @@ export default {
       this.getDocumentRoot({ teachingTaskId: this.teachingTaskId })
         .then((response) => {
           const { fileId, fileName } = response.data
-          this.fileParentId = fileId
-          // 添加导航
-          this.navList = []
-          this.navList.push({ fileId, fileName })
-          // 获取文件列表
-          this.getDocumentList()
+          if (fileId) {
+            this.fileParentId = fileId
+            // 添加导航
+            this.navList = []
+            this.navList.push({ fileId, fileName })
+            // 获取文件列表
+            this.getDocumentList()
+          } else {
+            this.documentList = []
+            this.$message.info('教师无分享文件')
+          }
         })
     },
     // 设置文件图标
