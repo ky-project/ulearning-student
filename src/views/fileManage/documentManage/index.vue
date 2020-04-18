@@ -116,7 +116,8 @@ export default {
       loading: false,
       fileParentId: '', // 父文件id
       navList: [], // 导航列表
-      documentList: [] // 文件列表
+      documentList: [], // 文件列表
+      initFlag: false
     }
   },
   computed: {
@@ -137,9 +138,10 @@ export default {
   },
   watch: {
     teachingTaskId() {
-      if (this.fileParentId) {
+      if (this.initFlag) {
         this.initialFileList()
       }
+      this.initFlag = true
     }
   },
   created() {
