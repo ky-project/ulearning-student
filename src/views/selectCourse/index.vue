@@ -196,6 +196,7 @@ export default {
     },
     handleChange() {
       this.state = this.state === 0 ? 1 : 0
+      this.listQuery.currentPage = 1
       this.resetListQuery()
       this.getList()
     },
