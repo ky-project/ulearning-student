@@ -116,7 +116,8 @@ export default {
       loading: false,
       fileParentId: '', // 父文件id
       navList: [], // 导航列表
-      documentList: [] // 文件列表
+      documentList: [], // 文件列表
+      initFlag: false
     }
   },
   computed: {
@@ -137,9 +138,10 @@ export default {
   },
   watch: {
     teachingTaskId() {
-      if (this.fileParentId) {
+      if (this.initFlag) {
         this.initialFileList()
       }
+      this.initFlag = true
     }
   },
   created() {
@@ -220,12 +222,17 @@ export default {
       this.getDocumentRoot({ teachingTaskId: this.teachingTaskId })
         .then((response) => {
           const { fileId, fileName } = response.data
-          this.fileParentId = fileId
-          // 添加导航
-          this.navList = []
-          this.navList.push({ fileId, fileName })
-          // 获取文件列表
-          this.getDocumentList()
+          if (fileId) {
+            this.fileParentId = fileId
+            // 添加导航
+            this.navList = []
+            this.navList.push({ fileId, fileName })
+            // 获取文件列表
+            this.getDocumentList()
+          } else {
+            this.documentList = []
+            this.$message.info('教师无分享文件')
+          }
         })
     },
     // 设置文件图标
