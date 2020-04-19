@@ -51,15 +51,15 @@
           <header-tag text="基本信息" />
           <div class="line">
             <label>姓名：</label>
-            <span>张三</span>
+            <span>{{ $store.getters.userInfo.stuName }}</span>
           </div>
           <div class="line">
             <label>性别：</label>
-            <span>男</span>
+            <span>{{ $store.getters.userInfo.stuGender }}</span>
           </div>
           <div class="line">
             <label>系别：</label>
-            <span>机电系</span>
+            <span>{{ $store.getters.userInfo.stuDept }}</span>
           </div>
         </div>
         <div class="operator side-bottom">
