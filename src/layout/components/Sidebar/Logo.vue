@@ -49,7 +49,7 @@ export default {
   width: 100%;
   height: 50px;
   line-height: 50px;
-  background: #7e8c9c;
+  background: #2d3235;
   text-align: center;
   overflow: hidden;
 
@@ -62,7 +62,7 @@ export default {
       height: 32px;
       vertical-align: middle;
       margin-right: 12px;
-      background-color: #7e8c9c;
+      background-color: #fff;
       // padding: 10px;
       border-radius: 50%;
     }
