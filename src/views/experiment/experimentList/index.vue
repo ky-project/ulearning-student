@@ -9,6 +9,7 @@
           style="width: 200px;"
           size="small"
           class="filter-item"
+          @change="handleFilter"
         >
           <el-option
             v-for="item in teachingTask"
@@ -23,6 +24,7 @@
           style="width: 200px;"
           size="small"
           class="filter-item"
+          @change="handleFilter"
         >
           <el-option
             v-for="item in stateMap"
@@ -51,6 +53,7 @@
           style="width: 180px;"
           class="filter-item grow"
           size="mini"
+          @change="handleFilter"
         >
           <el-option
             v-for="item in teachingTask"
@@ -65,6 +68,7 @@
           style="width: 80px;"
           class="filter-item"
           size="mini"
+          @change="handleFilter"
         >
           <el-option
             v-for="item in stateMap"
@@ -122,29 +126,38 @@
       <el-table-column
         label="操作"
         align="center"
-        min-width="80"
+        width="200"
         class-name="small-padding fixed-width"
         show-overflow-tooltip
       >
         <template slot-scope="{row}">
-          <svg-icon
+          <el-button
             v-if="row.experimentStatus === 0"
-            icon-class="zuoti"
-            class="icon-zuoti"
+            size="mini"
+            type="primary"
+            round
             @click="doExperiment(row)"
-          />
-          <svg-icon
+          >
+            做实验
+          </el-button>
+          <el-button
             v-if="row.experimentStatus >= 1"
-            icon-class="chakan"
-            class="icon-chakan"
+            size="mini"
+            type="info"
+            round
             @click="checkExperiment(row)"
-          />
-          <svg-icon
+          >
+            详情
+          </el-button>
+          <el-button
             v-if="row.experimentStatus === 2"
-            icon-class="fankui"
-            class="icon-fankui"
+            size="mini"
+            type="info"
+            round
             @click="experimentResult(row)"
-          />
+          >
+            批改结果
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -231,7 +244,6 @@ export default {
     // 反馈
     experimentResult(row) {
       // 获取实验id
-      console.log(row.id)
       this.$router.push('/experiment/experiment-result?experimentId=' + row.id)
     },
     // 手机端查找事件
@@ -253,7 +265,6 @@ export default {
     },
     // 查看实验
     checkExperiment(row) {
-      console.log('实验id', row.id)
       // 1. 清空
       this.resetExperiment()
       this.resetExperimentResult()

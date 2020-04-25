@@ -4,7 +4,7 @@
       <!-- <el-button type="info" size="mini" class="back" @click="back">{{ '<< 返回' }}</el-button> -->
       <div class="experiment-content-block">
         <span>题目内容</span>
-        <el-button v-desktop class="fr" type="text" @click="back">返回</el-button>
+        <el-button v-desktop class="fr" type="text" @click="back">< 返回</el-button>
       </div>
       <div class="experiment-content-header">
         <h3 class="title">[实验{{ experiment.experimentOrder }}] {{ experiment.experimentTitle }}</h3>
@@ -55,6 +55,7 @@
           v-if="experimentMode !== 'check'"
           type="primary"
           class="submit"
+          round
           :loading="isLoading"
           @click="submit"
         >

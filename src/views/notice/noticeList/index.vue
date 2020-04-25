@@ -201,7 +201,6 @@ export default {
       this.listLoading = true
       axiosGet(GET_NOTICE_PAGE_URL, {params: this.listQuery})
         .then(response => {
-          console.log(response.data)
           const {content, total} = response.data
           this.list = content
           this.total = total

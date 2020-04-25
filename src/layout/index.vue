@@ -169,5 +169,8 @@ export default {
       font-size: 14px;
     }
   }
+  .el-popup-parent--hidden .fixed-header {
+    padding-right: 0;
+  }
 </style>
 

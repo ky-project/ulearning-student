@@ -57,7 +57,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       axiosPost(LOGIN_URL, userInfo)
         .then(response => {
-          console.log('登录成功')
           // 成功，重新获取用户信息
           dispatch('getInfo')
             .then(() => {
@@ -74,11 +73,9 @@ const actions = {
   },
 
   logout({ commit, state }) {
-    console.log('正在退出...')
     return new Promise((resolve, reject) => {
       axiosGet(LOG_OUT_URL)
         .then(() => {
-          console.log('退出成功')
           commit('RESET_STATE')
           removeVuex() // 删除sessionStorage
           resolve()

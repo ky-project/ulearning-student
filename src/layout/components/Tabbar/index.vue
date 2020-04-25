@@ -57,7 +57,6 @@ export default {
       // 1. 获取路由
       // 2. 格式转换
       // 3. 设置给data
-      console.log(this.$route)
     }
   }
 }

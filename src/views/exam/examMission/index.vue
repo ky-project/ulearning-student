@@ -203,7 +203,6 @@ export default {
           { value: '错误', content: '错误' }
         ]
       }
-      console.log(arr)
       return arr
     }
   },
@@ -320,7 +319,6 @@ export default {
       }).then(() => {
         this.submit()
       }).catch(() => {
-        console.log('取消')
       })
     },
     // 保存

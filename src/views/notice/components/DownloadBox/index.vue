@@ -57,7 +57,6 @@ export default {
       a.download = name
       a.style.display = 'none'
       const fileurl = process.env.VUE_APP_BASE_API + DOWNLOAD_NOTICE_URL + '?id=' + id + '&attachmentName=' + name
-      console.log(fileurl)
       a.href = fileurl
       document.body.appendChild(a)
       a.click() // 触发点击

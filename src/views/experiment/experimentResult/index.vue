@@ -192,7 +192,6 @@ export default {
       }
     },
     loadExcellentExperiment(id) {
-      console.log('hello')
       this.getExcellentById(id)
         .then(() => {
           if (this.seeSelf) {
@@ -202,7 +201,6 @@ export default {
     },
     getExcellentById(id) {
       // GET_EXCELLENT_EXPERIMENT_RESULT
-      console.log('id', id)
       return new Promise((resolve, reject) => {
         this.loading = true
         axiosGet(GET_EXCELLENT_EXPERIMENT_RESULT, { params: { id }})

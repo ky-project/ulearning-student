@@ -80,26 +80,28 @@
       <el-table-column
         label="操作"
         align="center"
-        min-width="70"
+        width="80"
         class-name="small-padding fixed-width"
         show-overflow-tooltip
       >
         <template slot-scope="{row}">
           <el-button
-            :style="{color: '#409EFF'}"
+            v-if="!state"
             size="mini"
-            type="text"
+            type="primary"
+            round
+            @click="selectCourse(row.id)"
           >
-            <span
-              v-if="!state"
-              :style="{color:'#409EFF'}"
-              @click="selectCourse(row.id)"
-            >选课</span>
-            <span
-              v-else
-              :style="{color:'#F56C6C'}"
-              @click="unselectCourse(row.id)"
-            >退选</span>
+            选课
+          </el-button>
+          <el-button
+            v-else
+            size="mini"
+            type="danger"
+            round
+            @click="unselectCourse(row.id)"
+          >
+            退选
           </el-button>
         </template>
       </el-table-column>

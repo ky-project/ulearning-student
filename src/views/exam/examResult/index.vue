@@ -9,6 +9,7 @@
           style="width: 200px;"
           size="small"
           class="filter-item"
+          @change="handleFilter"
         >
           <el-option
             v-for="item in teachingTask"
@@ -25,6 +26,7 @@
           size="small"
           value-format="yyyy-MM-dd"
           class="filter-item"
+          @change="handleFilter"
         />
         <el-button
           v-waves
@@ -45,6 +47,7 @@
           style="width: 120px;"
           class="filter-item grow"
           size="mini"
+          @change="handleFilter"
         >
           <el-option
             v-for="item in teachingTask"
@@ -62,6 +65,7 @@
           class="filter-item"
           style="width: 140px;"
           size="mini"
+          @change="handleFilter"
         />
         <el-button
           v-waves
@@ -123,16 +127,20 @@
       <el-table-column
         label="操作"
         align="center"
-        min-width="70"
+        width="80"
         class-name="small-padding fixed-width"
         show-overflow-tooltip
       >
         <template slot-scope="{row}">
-          <svg-icon
-            icon-class="fankui"
-            :class="['icon--detail', {disabled: !row.examinationShowResult}]"
+          <el-button
+            size="mini"
+            type="primary"
+            round
+            :class="[{disabled: !row.examinationShowResult}]"
             @click="examDetail(row)"
-          />
+          >
+            查看
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -280,7 +288,6 @@ export default {
         .then(response => {
           const { content, total } = response.data
           this.list = content
-          console.log(this.list)
           this.total = total
           this.listLoading = false
         })
