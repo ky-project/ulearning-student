@@ -182,18 +182,12 @@ export default {
           this.$message.success('选课成功')
           this.getList()
         })
-        .catch(error => {
-          // this.$message.error(error.message || '出错')
-        })
     },
     unselectCourse(id) {
       axiosPost(UNSELECT_COURSE, { teachingTaskId: id })
         .then(response => {
           this.$message.success('退选成功')
           this.getList()
-        })
-        .catch(error => {
-          // this.$message.error(error.message || '出错')
         })
     },
     handleChange() {
@@ -226,84 +220,6 @@ export default {
     indexMethod(index) {
       return (index + 1) + (this.listQuery.currentPage - 1) * this.listQuery.pageSize
     }
-    /* resetTemp() {
-      this.temp = {
-        'id': '',
-        'stuDept': '', // 系部
-        'stuEmail': '', // 邮箱
-        'stuGender': '', // 性别
-        'stuName': '', // 姓名
-        'stuNumber': '', // 学号
-        'stuPhone': '' // 电话
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      console.log('添加数据')
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          // 1. 添加学生
-          addStudent(this.temp)
-            .then(response => {
-              this.$message({
-                type: 'success',
-                message: '学生添加成功'
-              })
-              this.getList()
-              this.dialogFormVisible = false
-            })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          console.log('校验成功')
-          // 1. 发送请求
-          updateStudent(this.temp)
-            .then(response => {
-              this.$message({
-                type: 'success',
-                message: '学生信息更新成功'
-              })
-              this.getList()
-              this.dialogFormVisible = false
-            })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      this.$confirm('确定永久删除该学生, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // 发送请求
-        deleteStudent({ id: row.id })
-          .then(response => {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            })
-            this.getList()
-          })
-      })
-    } */
   }
 }
 </script>

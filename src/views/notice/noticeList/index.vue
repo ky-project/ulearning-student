@@ -199,15 +199,12 @@ export default {
     },
     getList() {
       this.listLoading = true
-      axiosGet(GET_NOTICE_PAGE_URL, {params: this.listQuery})
+      axiosGet(GET_NOTICE_PAGE_URL, { params: this.listQuery })
         .then(response => {
-          const {content, total} = response.data
+          const { content, total } = response.data
           this.list = content
           this.total = total
           this.listLoading = false
-        })
-        .catch(error => {
-          // this.$message.error(error.message || '出错')
         })
     },
     // 获取教学任务数组

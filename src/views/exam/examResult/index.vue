@@ -161,20 +161,18 @@
 </template>
 
 <script>
-import { mapMutations, mapGetters } from 'vuex'
+import { mapMutations } from 'vuex'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
-import MobileTop from '@/components/MobileTop'
 import { GET_SELECTED_COURSE_ARRAY_URL } from '@/api/url'
-import { axiosGet, axiosPost } from '@/utils/axios'
-import { getViewportOffset } from '@/utils/index'
+import { axiosGet } from '@/utils/axios'
 import {
   GET_EXAM_PAGE_URL
 } from '@/api/url'
 
 export default {
   name: 'SelectCourse',
-  components: { Pagination, MobileTop },
+  components: { Pagination },
   directives: { waves },
   data() {
     return {

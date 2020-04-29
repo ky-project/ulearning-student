@@ -209,9 +209,8 @@ export default {
             this.experimentResult = response.data
             resolve(response)
           })
-          .catch(error => {
+          .catch(() => {
             this.loading = false
-            // this.$message.error(error.message || '出错')
           })
       })
     },
@@ -226,21 +225,10 @@ export default {
             this.excellentList = response.data
             resolve(response)
           })
-          .catch(error => {
+          .catch(() => {
             this.loading = false
-            // this.$message.error(error.message || '出错')
           })
       })
-      /* this.excellentList = [
-        { stuName: '张三', experimentScore: 93, stuId: '1' },
-        { stuName: '张三', experimentScore: 93, stuId: '2' },
-        { stuName: '张三', experimentScore: 93, stuId: '3' },
-        { stuName: '张三', experimentScore: 93, stuId: '4' },
-        { stuName: '张三', experimentScore: 93, stuId: '5' },
-        { stuName: '张三', experimentScore: 93, stuId: '6' },
-        { stuName: '张三', experimentScore: 93, stuId: '7' },
-        { stuName: '张三', experimentScore: 93, stuId: '8' }
-      ] */
     },
     getExperimentResult() {
       const experimentId = this.$route.query.experimentId
@@ -252,9 +240,8 @@ export default {
             this.experimentResult = response.data
             resolve(response)
           })
-          .catch(error => {
+          .catch(() => {
             this.loading = false
-            // this.$message.error(error.message || '出错')
           })
       })
     }
