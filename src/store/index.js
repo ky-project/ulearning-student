@@ -7,6 +7,7 @@ import user from './modules/user'
 import experiment from './modules/experiment'
 import notice from './modules/notice'
 import examDetail from './modules/examDetail'
+import pagePars from './modules/pagePars'
 import VuexPersistence from 'vuex-persist' // 持久化存储
 
 Vue.use(Vuex)
@@ -14,6 +15,7 @@ const vuexLocal = new VuexPersistence({
   storage: window.sessionStorage,
   modules: ['experiment', 'app', 'notice', 'user', 'examDetail']
 })
+
 const store = new Vuex.Store({
   modules: {
     app,
@@ -21,7 +23,8 @@ const store = new Vuex.Store({
     user,
     experiment,
     notice,
-    examDetail
+    examDetail,
+    pagePars
   },
   getters,
   plugins: [vuexLocal.plugin]

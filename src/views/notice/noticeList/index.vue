@@ -170,6 +170,7 @@ export default {
         this.teachingTask = response.data
         if (this.teachingTask.length) {
           this.listQuery.teachingTaskId = this.teachingTask[0].key
+          this.getPagePars()
           this.getList()
         }
       })
@@ -182,6 +183,34 @@ export default {
       'resetNotice': 'notice/RESET_NOTICE',
       'setNotice': 'notice/SET_NOTICE'
     }),
+    getPagePars() {
+      const { pagePars } = this.$store.getters
+      const path = this.$route.path
+      if (pagePars.has(path)) {
+        const { currentPage, pageSize, filter } = pagePars.get(path)
+        this.listQuery = {
+          currentPage,
+          pageSize,
+          teachingTaskId: filter.teachingTaskId,
+          noticePostTime: filter.noticePostTime
+        }
+        return true
+      } else {
+        return false
+      }
+    },
+    savePagePars() {
+      const path = this.$route.path
+      const pars = {
+        currentPage: this.listQuery.currentPage,
+        pageSize: this.listQuery.pageSize,
+        filter: {
+          teachingTaskId: this.listQuery.teachingTaskId,
+          noticePostTime: this.listQuery.noticePostTime
+        }
+      }
+      this.$store.dispatch('pagePars/savePagePars', { path, pars })
+    },
     itemClick(item) {
       // 1. 清空
       this.resetNotice()
@@ -198,6 +227,7 @@ export default {
       this.getList()
     },
     getList() {
+      this.savePagePars()
       this.listLoading = true
       axiosGet(GET_NOTICE_PAGE_URL, { params: this.listQuery })
         .then(response => {

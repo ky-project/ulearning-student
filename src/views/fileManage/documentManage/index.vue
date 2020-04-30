@@ -138,6 +138,7 @@ export default {
   },
   watch: {
     teachingTaskId() {
+      this.savePagePars()
       if (this.initFlag) {
         this.initialFileList()
       }
@@ -150,17 +151,32 @@ export default {
         this.teachingTask = response.data
         if (this.teachingTask.length) {
           this.teachingTaskId = this.teachingTask[0].key
+          this.getPagePars()
           this.initialFileList()
         }
       })
   },
-
-  beforeMount() {
-  },
-
-  mounted() {
-  },
   methods: {
+    getPagePars() {
+      const { pagePars } = this.$store.getters
+      const path = this.$route.path
+      if (pagePars.has(path)) {
+        const { filter } = pagePars.get(path)
+        this.teachingTaskId = filter.teachingTaskId
+        return true
+      } else {
+        return false
+      }
+    },
+    savePagePars() {
+      const path = this.$route.path
+      const pars = {
+        filter: {
+          teachingTaskId: this.teachingTaskId
+        }
+      }
+      this.$store.dispatch('pagePars/savePagePars', { path, pars })
+    },
     // 格式化时间
     formatTime(time) {
       const tempArr = time.split(' ')

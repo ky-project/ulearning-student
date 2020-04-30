@@ -61,6 +61,7 @@ export const constantRoutes = [
     path: '/file-manage',
     component: Layout,
     meta: { title: '文件管理', icon: 'wenjian' },
+    redirect: 'noRedirect',
     children: [
       {
         path: 'document-manage',
@@ -130,6 +131,7 @@ export const constantRoutes = [
     path: '/exam',
     component: Layout,
     meta: { title: '学生测试', icon: 'kaoshi' },
+    redirect: 'noRedirect',
     children: [
       {
         path: 'exam-select',

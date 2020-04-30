@@ -9,7 +9,7 @@
           style="width: 200px;"
           size="small"
           class="filter-item"
-          @change="handleFilter"
+          @change="(teachingTaskId) => {listQuery.teachingTaskId = teachingTaskId}"
         >
           <el-option
             v-for="item in teachingTask"
@@ -19,12 +19,12 @@
           />
         </el-select>
         <el-select
-          v-model="listQuery.experimentState"
+          v-model="listQuery.experimentStatus"
           placeholder="状态"
           style="width: 200px;"
           size="small"
           class="filter-item"
-          @change="handleFilter"
+          @change="(experimentStatus) => {listQuery.experimentStatus = experimentStatus}"
         >
           <el-option
             v-for="item in stateMap"
@@ -53,7 +53,7 @@
           style="width: 180px;"
           class="filter-item grow"
           size="mini"
-          @change="handleFilter"
+          @change="(teachingTaskId) => {listQuery.teachingTaskId = teachingTaskId}"
         >
           <el-option
             v-for="item in teachingTask"
@@ -63,12 +63,12 @@
           />
         </el-select>
         <el-select
-          v-model="listQuery.experimentState"
+          v-model="listQuery.experimentStatus"
           placeholder="状态"
           style="width: 80px;"
           class="filter-item"
           size="mini"
-          @change="handleFilter"
+          @change="(experimentStatus) => {listQuery.experimentStatus = experimentStatus}"
         >
           <el-option
             v-for="item in stateMap"
@@ -226,6 +226,7 @@ export default {
         this.teachingTask = response.data
         if (this.teachingTask.length) {
           this.listQuery.teachingTaskId = this.teachingTask[0].key
+          this.getPagePars()
           this.getList()
         }
       })
@@ -241,6 +242,34 @@ export default {
     ...mapActions({
       'getExperimentResult': 'experiment/getExperimentResult'
     }),
+    getPagePars() {
+      const { pagePars } = this.$store.getters
+      const path = this.$route.path
+      if (pagePars.has(path)) {
+        const { currentPage, pageSize, filter } = pagePars.get(path)
+        this.listQuery = {
+          currentPage,
+          pageSize,
+          teachingTaskId: filter.teachingTaskId,
+          experimentStatus: filter.experimentStatus
+        }
+        return true
+      } else {
+        return false
+      }
+    },
+    savePagePars() {
+      const path = this.$route.path
+      const pars = {
+        currentPage: this.listQuery.currentPage,
+        pageSize: this.listQuery.pageSize,
+        filter: {
+          teachingTaskId: this.listQuery.teachingTaskId,
+          experimentStatus: this.listQuery.experimentStatus
+        }
+      }
+      this.$store.dispatch('pagePars/savePagePars', { path, pars })
+    },
     // 反馈
     experimentResult(row) {
       // 获取实验id
@@ -289,6 +318,7 @@ export default {
     },
     // 分页查询实验
     getList() {
+      this.savePagePars()
       return new Promise((resolve, reject) => {
         this.listLoading = true
         axiosGet(GET_EXPERIMENT_PAGE_URL, { params: this.listQuery })

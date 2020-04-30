@@ -9,7 +9,7 @@
           style="width: 200px;"
           size="small"
           class="filter-item"
-          @change="handleFilter"
+          @change="(teachingTaskId)=>{listQuery.teachingTaskId = teachingTaskId}"
         >
           <el-option
             v-for="item in teachingTask"
@@ -26,7 +26,7 @@
           size="small"
           value-format="yyyy-MM-dd"
           class="filter-item"
-          @change="handleFilter"
+          @change="(submitTime)=>{listQuery.submitTime = submitTime}"
         />
         <el-button
           v-waves
@@ -47,7 +47,7 @@
           style="width: 120px;"
           class="filter-item grow"
           size="mini"
-          @change="handleFilter"
+          @change="(teachingTaskId)=>{listQuery.teachingTaskId = teachingTaskId}"
         >
           <el-option
             v-for="item in teachingTask"
@@ -65,7 +65,7 @@
           class="filter-item"
           style="width: 140px;"
           size="mini"
-          @change="handleFilter"
+          @change="(submitTime)=>{listQuery.submitTime = submitTime}"
         />
         <el-button
           v-waves
@@ -190,26 +190,13 @@ export default {
       }
     }
   },
-  computed: {
-
-    /* isMobile() {
-      return this.$store.getters.device === 'mobile'
-    },
-    tableHeight() {
-      const height = getViewportOffset().h
-      if (this.isMobile) {
-        return height - 182
-      } else {
-        return ''
-      }
-    } */
-  },
   created() {
     this.getTaskArray()
       .then(response => {
         this.teachingTask = response.data
         if (this.teachingTask.length) {
           this.listQuery.teachingTaskId = this.teachingTask[0].key
+          this.getPagePars()
           this.getList()
         }
       })
@@ -228,6 +215,34 @@ export default {
         this.questionId = this.cardData[0].items[0].id
         this.questionType = this.activeName
       }
+    },
+    getPagePars() {
+      const { pagePars } = this.$store.getters
+      const path = this.$route.path
+      if (pagePars.has(path)) {
+        const { currentPage, pageSize, filter } = pagePars.get(path)
+        this.listQuery = {
+          currentPage,
+          pageSize,
+          submitTime: filter.submitTime,
+          teachingTaskId: filter.teachingTaskId
+        }
+        return true
+      } else {
+        return false
+      }
+    },
+    savePagePars() {
+      const path = this.$route.path
+      const pars = {
+        currentPage: this.listQuery.currentPage,
+        pageSize: this.listQuery.pageSize,
+        filter: {
+          submitTime: this.listQuery.submitTime,
+          teachingTaskId: this.listQuery.teachingTaskId
+        }
+      }
+      this.$store.dispatch('pagePars/savePagePars', { path, pars })
     },
     // 获取教学任务数组
     getTaskArray() {
@@ -252,26 +267,6 @@ export default {
         this.$router.push('/exam/exam-detail')
       }
     },
-    /* selectCourse(id) {
-      axiosPost(SELECT_COURSE, { teachingTaskId: id })
-        .then(response => {
-          this.$message.success('选课成功')
-          this.getList()
-        })
-        .catch(error => {
-          // this.$message.error(error.message || '出错')
-        })
-    },
-    unselectCourse(id) {
-      axiosPost(UNSELECT_COURSE, { teachingTaskId: id })
-        .then(response => {
-          this.$message.success('退选成功')
-          this.getList()
-        })
-        .catch(error => {
-          // this.$message.error(error.message || '出错')
-        })
-    }, */
     handleChange() {
       this.state = this.state === 0 ? 1 : 0
       this.resetListQuery()
@@ -281,6 +276,7 @@ export default {
       this.listQuery.teachingTaskAlias = ''
     },
     getList() {
+      this.savePagePars()
       this.listLoading = true
       axiosGet(GET_EXAM_PAGE_URL, { params: this.listQuery })
         .then(response => {

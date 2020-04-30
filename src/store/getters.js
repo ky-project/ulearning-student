@@ -12,6 +12,8 @@ const getters = {
   // 通告相关
   notice: state => state.notice.notice,
   // 测试相关
-  examDetail: state => state.examDetail.examDetail
+  examDetail: state => state.examDetail.examDetail,
+  // 页面数据查询参数
+  pagePars: state => state.pagePars.pagePars
 }
 export default getters

@@ -167,15 +167,37 @@ export default {
     }
   },
   created() {
+    // 初始化查询表
+    this.getPagePars()
     this.getList()
   },
   methods: {
-    /* updatePage(val) {
-      this.listQuery.currentPage = val
+    getPagePars() {
+      const { pagePars } = this.$store.getters
+      const path = this.$route.path + '/' + this.state
+      if (pagePars.has(path)) {
+        const { currentPage, pageSize, filter } = pagePars.get(path)
+        this.listQuery = {
+          currentPage,
+          pageSize,
+          teachingTaskAlias: filter.teachingTaskAlias
+        }
+        return true
+      } else {
+        return false
+      }
     },
-    updateLimit(val) {
-      this.listQuery.pageSize = val
-    },*/
+    savePagePars() {
+      const path = this.$route.path + '/' + this.state
+      const pars = {
+        currentPage: this.listQuery.currentPage,
+        pageSize: this.listQuery.pageSize,
+        filter: {
+          teachingTaskAlias: this.listQuery.teachingTaskAlias
+        }
+      }
+      this.$store.dispatch('pagePars/savePagePars', { path, pars })
+    },
     selectCourse(id) {
       axiosPost(SELECT_COURSE, { teachingTaskId: id })
         .then(response => {
@@ -192,14 +214,18 @@ export default {
     },
     handleChange() {
       this.state = this.state === 0 ? 1 : 0
-      this.listQuery.currentPage = 1
-      this.resetListQuery()
+      const result = this.getPagePars()
+      if (!result) {
+        this.lkistQuery.currentPage = 1
+        this.resetListQuery()
+      }
       this.getList()
     },
     resetListQuery() {
       this.listQuery.teachingTaskAlias = ''
     },
     getList() {
+      this.savePagePars()
       this.listLoading = true
       const url = !this.state ? GET_UNSELECTED_COURSE_LIST : GET_SELECTED_COURSE_LIST
       axiosGet(url, { params: this.listQuery })
