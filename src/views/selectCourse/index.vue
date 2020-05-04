@@ -47,8 +47,8 @@
       fit
       size="small"
       highlight-current-row
-      :height="tableHeight"
       style="width: 100%;"
+      :height="tableHeight"
     >
       <el-table-column
         label="序号"
@@ -159,10 +159,11 @@ export default {
     },
     tableHeight() {
       const height = getViewportOffset().h
+      console.log('height', height)
       if (this.isMobile) {
-        return height - 182
+        return height - 182 + 'px'
       } else {
-        return ''
+        return null
       }
     }
   },
@@ -271,6 +272,7 @@ export default {
   }
   .el-select {
     width: 100%;
+    height: '';
   }
 }
 </style>
