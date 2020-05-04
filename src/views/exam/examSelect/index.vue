@@ -1,9 +1,15 @@
 <template>
-  <div class="exam-select">
-    <div class="exam-select-bg">
-      <img src="@/assets/images/showcase.png" alt="">
-    </div>
-    <el-form ref="form" class="exam-select-form" :rules="rules" :model="ruleForm" hide-required-asterisk>
+  <div
+    class="exam-select"
+    :style="bgStyle"
+  >
+    <el-form
+      ref="form"
+      class="exam-select-form"
+      :rules="rules"
+      :model="ruleForm"
+      hide-required-asterisk
+    >
       <el-form-item prop="teachingTaskId">
         <el-select
           v-model="ruleForm.teachingTaskId"
@@ -45,6 +51,7 @@
 
 <script>
 import { axiosGet } from '@/utils/axios'
+import bgImg from '@/assets/images/showcase.png'
 // import { stateMap } from './../config.js'
 import {
   GET_SELECTED_COURSE_ARRAY_URL,
@@ -64,6 +71,7 @@ export default {
       examList: [],
       teachingTask: [],
       examListMap: {},
+      bgStyle: { background: `url(${bgImg}) no-repeat center`, backgroundSize: 'cover' },
       rules: {
         teachingTaskId: [
           { required: true, message: '请选择教学任务', trigger: 'change' }
