@@ -173,13 +173,6 @@ export default {
   height: calc(100vh - 50px);
   overflow: hidden;
   position: relative;
-  &-bg {
-    height: 100%;
-    img {
-      object-fit: cover;
-      object-position: 50% 50%;
-    }
-  }
   &-form {
     position: absolute;
     top: 200px;

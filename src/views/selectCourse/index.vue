@@ -90,7 +90,7 @@
             size="mini"
             type="primary"
             round
-            @click="selectCourse(row.id)"
+            @click="selectCourse(row)"
           >
             选课
           </el-button>
@@ -99,7 +99,7 @@
             size="mini"
             type="danger"
             round
-            @click="unselectCourse(row.id)"
+            @click="unselectCourse(row)"
           >
             退选
           </el-button>
@@ -201,27 +201,32 @@ export default {
       }
       this.$store.dispatch('pagePars/savePagePars', { path, pars })
     },
-    selectCourse(id) {
-      axiosPost(SELECT_COURSE, { teachingTaskId: id })
-        .then(response => {
-          this.$message.success('选课成功')
-          this.getList()
-        })
-    },
-    async unselectCourse(id) {
-      try {
-        await this.open()
-        await axiosPost(UNSELECT_COURSE, { teachingTaskId: id })
-        this.$message.success('退选成功')
-        this.getList()
-      } catch (e) { () => {} }
-    },
-    open() {
-      return this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+    open(test) {
+      return this.$confirm(test, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
+    },
+    async selectCourse(row) {
+      const { id, teachingTaskAlias } = row
+      try {
+        await this.open(`确定选择${teachingTaskAlias}?`)
+        await axiosPost(SELECT_COURSE, { teachingTaskId: id })
+        this.$message.success('选课成功')
+        this.getList()
+      } catch (e) {
+        () => {}
+      }
+    },
+    async unselectCourse(row) {
+      const { id, teachingTaskAlias } = row
+      try {
+        await this.open(`确定退选${teachingTaskAlias}?`)
+        await axiosPost(UNSELECT_COURSE, { teachingTaskId: id })
+        this.$message.success('退选成功')
+        this.getList()
+      } catch (e) { () => {} }
     },
     handleChange() {
       this.state = this.state === 0 ? 1 : 0
