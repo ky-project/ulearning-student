@@ -208,12 +208,20 @@ export default {
           this.getList()
         })
     },
-    unselectCourse(id) {
-      axiosPost(UNSELECT_COURSE, { teachingTaskId: id })
-        .then(response => {
-          this.$message.success('退选成功')
-          this.getList()
-        })
+    async unselectCourse(id) {
+      try {
+        await this.open()
+        await axiosPost(UNSELECT_COURSE, { teachingTaskId: id })
+        this.$message.success('退选成功')
+        this.getList()
+      } catch (e) { () => {} }
+    },
+    open() {
+      return this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
     },
     handleChange() {
       this.state = this.state === 0 ? 1 : 0
