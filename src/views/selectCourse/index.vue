@@ -159,7 +159,7 @@ export default {
     },
     tableHeight() {
       const height = getViewportOffset().h
-      console.log('height', height)
+      // console.log('height', height)
       if (this.isMobile) {
         return height - 182 + 'px'
       } else {
@@ -176,8 +176,10 @@ export default {
     getPagePars() {
       const { pagePars } = this.$store.getters
       const path = this.$route.path + '/' + this.state
+      // console.log('path', path)
       if (pagePars.has(path)) {
         const { currentPage, pageSize, filter } = pagePars.get(path)
+        // console.log('currentPage', currentPage)
         this.listQuery = {
           currentPage,
           pageSize,
@@ -216,8 +218,9 @@ export default {
     handleChange() {
       this.state = this.state === 0 ? 1 : 0
       const result = this.getPagePars()
+      // console.log('result', result)
       if (!result) {
-        this.lkistQuery.currentPage = 1
+        this.listQuery.currentPage = 1
         this.resetListQuery()
       }
       this.getList()
