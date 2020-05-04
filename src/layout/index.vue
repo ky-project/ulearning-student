@@ -7,7 +7,7 @@
         <navbar />
       </div>
       <app-main :height="mainHeight" />
-      <div v-show="!hiddenTabbar" v-mobile class="fixed-bottom">
+      <div v-if="device === 'mobile' && !hiddenTabbar" class="fixed-bottom">
         <tabbar :data="data" />
       </div>
     </div>
