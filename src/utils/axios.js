@@ -44,11 +44,11 @@ function interceptor(service) {
 
   service.interceptors.response.use(
     response => {
-      console.log('请求成功')
+      // console.log('请求成功')
       return response.data
     },
     async error => {
-      console.log('请求失败', error)
+      // console.log('请求失败', error)
       const { response } = error
       const { code, message } = response.data
       switch (code) {

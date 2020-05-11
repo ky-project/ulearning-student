@@ -256,27 +256,6 @@ export default {
   },
 
   methods: {
-    /* // 打开
-    open() {
-      let seconds = 60
-      const timer = setInterval(() => {
-        seconds--
-        if (seconds === 0) {
-          clearInterval(timer)
-        }
-      }, 1000)
-      this.$confirm(`测试结果将会在${seconds}s内生成，请耐心等待...`, '提示', {
-        confirmButtonText: '立即查看',
-        cancelButtonText: '取消',
-        type: 'info'
-      }).then(() => {
-        this.clearInterval(timer)
-        this.$router.push('/exam/exam-result')
-      }).catch(() => {
-        this.clearInterval(timer)
-        this.$router.push('/exam/exam-select')
-      })
-    }, */
     // 获取大题序列
     getQuestionSort() {
       const courseQuestion = this.exam
