@@ -34,8 +34,8 @@
             />
             <completion-question v-else :answer-list="result" @change="updateAnswer" />
             <div v-desktop class="btns flex justify-end">
-              <el-button @click="prev">上一题</el-button>
-              <el-button type="primary" @click="next">下一题</el-button>
+              <el-button :disabled="prevDisabled" @click="prev">上一题</el-button>
+              <el-button type="primary" :disabled="nextDisabled" @click="next">下一题</el-button>
             </div>
           </div>
         </el-scrollbar>
@@ -94,10 +94,10 @@
               @change="updateAnswer"
             />
             <completion-question v-else :answer-list="result" @change="updateAnswer" />
-            <div v-desktop class="btns flex justify-end">
+            <!-- <div v-desktop class="btns flex justify-end">
               <el-button @click="prev">上一题</el-button>
               <el-button type="primary" @click="next">下一题</el-button>
-            </div>
+            </div> -->
           </el-scrollbar>
         </div>
         <div class="exam-mission-bottom">
@@ -153,7 +153,9 @@ export default {
       loading: false, // 加载
       cheatCount: 0, // 作弊次数
       isScreenfull: false, // 是否全屏
-      questionSort: '一'
+      questionSort: '一',
+      prevDisabled: false,
+      nextDisabled: false
     }
   },
 
@@ -222,6 +224,21 @@ export default {
         }
         // 更新大题序号
         this.getQuestionSort()
+        // 最后一题或第一题禁用按钮
+        const typeKeys = Object.keys(this.exam)
+        const firstQuestion = this.exam[typeKeys[0]][0]
+        const lastTypeQuestions = this.exam[typeKeys[typeKeys.length - 1]]
+        const lastQuestion = lastTypeQuestions[lastTypeQuestions.length - 1]
+        if (value === firstQuestion.id) {
+          this.prevDisabled = true
+        } else {
+          this.prevDisabled = false
+        }
+        if (value === lastQuestion.id) {
+          this.nextDisabled = true
+        } else {
+          this.nextDisabled = false
+        }
       },
       immediate: true
     }
