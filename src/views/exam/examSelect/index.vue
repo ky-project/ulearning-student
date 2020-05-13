@@ -123,15 +123,14 @@ export default {
               if (item.condition === 2 || item.condition === 3) {
                 if (item.condition === 2) {
                   item.label += '[未开始]'
+                } else if (this.ruleForm.id === '') {
+                  this.ruleForm.id = item.key
                 }
                 return true
               }
               return false
             })
 
-            if (this.examList.length) {
-              this.ruleForm.id = this.examList[0].key
-            }
             this.examListMap[teachingTaskId] = this.examList
           })
       }
