@@ -5,7 +5,7 @@
       <div v-desktop>
         <el-input
           v-model="listQuery.teachingTaskAlias"
-          placeholder="教学任务别称"
+          placeholder="教学任务"
           style="width: 200px;"
           size="small"
           class="filter-item"
@@ -59,7 +59,7 @@
         width="50"
         :index="indexMethod"
       />
-      <el-table-column label="教学任务别称" align="center" width="120" show-overflow-tooltip>
+      <el-table-column label="教学任务" align="center" min-width="120" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.teachingTaskAlias }}</span>
         </template>
