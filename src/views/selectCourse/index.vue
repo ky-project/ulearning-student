@@ -5,7 +5,7 @@
       <div v-desktop>
         <el-input
           v-model="listQuery.teachingTaskAlias"
-          placeholder="教学任务别称"
+          placeholder="教学任务"
           style="width: 200px;"
           size="small"
           class="filter-item"
@@ -24,10 +24,12 @@
         <el-button
           class="filter-item fr"
           type="primary"
+          plain
           size="small"
           round
           @click="handleChange"
         >
+          <svg-icon icon-class="qiehuan" />
           {{ !state ? '已选' : '选课' }}
         </el-button>
       </div>
@@ -57,7 +59,7 @@
         width="50"
         :index="indexMethod"
       />
-      <el-table-column label="教学任务别称" align="center" width="120" show-overflow-tooltip>
+      <el-table-column label="教学任务" align="center" min-width="120" show-overflow-tooltip>
         <template slot-scope="{row}">
           <span>{{ row.teachingTaskAlias }}</span>
         </template>
@@ -99,6 +101,7 @@
             size="mini"
             type="danger"
             round
+            :disabled="!row.taskStatus"
             @click="unselectCourse(row)"
           >
             退选
@@ -220,6 +223,9 @@ export default {
       }
     },
     async unselectCourse(row) {
+      if (!row.taskStatus) {
+        this.$message.warning('课程已结束，无法退选')
+      }
       const { id, teachingTaskAlias } = row
       try {
         await this.open(`确定退选${teachingTaskAlias}?`)
