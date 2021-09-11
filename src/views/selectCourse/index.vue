@@ -99,6 +99,7 @@
             size="mini"
             type="danger"
             round
+            :disabled="row.taskStatus"
             @click="unselectCourse(row)"
           >
             退选
@@ -220,6 +221,9 @@ export default {
       }
     },
     async unselectCourse(row) {
+      if (!row.taskStatus) {
+        this.$message.warning('课程已结束，无法退选')
+      }
       const { id, teachingTaskAlias } = row
       try {
         await this.open(`确定退选${teachingTaskAlias}?`)
