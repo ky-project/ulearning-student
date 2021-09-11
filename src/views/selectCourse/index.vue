@@ -24,10 +24,12 @@
         <el-button
           class="filter-item fr"
           type="primary"
+          plain
           size="small"
           round
           @click="handleChange"
         >
+          <svg-icon icon-class="qiehuan" />
           {{ !state ? '已选' : '选课' }}
         </el-button>
       </div>
@@ -99,7 +101,7 @@
             size="mini"
             type="danger"
             round
-            :disabled="row.taskStatus"
+            :disabled="!row.taskStatus"
             @click="unselectCourse(row)"
           >
             退选
